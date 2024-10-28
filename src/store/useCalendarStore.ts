@@ -14,9 +14,7 @@ interface Event {
 
 interface CalendarStore {
   viewMode: ViewMode;
-  // modalOpen: boolean;
   currentDate: Dayjs;
-  // setModalOpen: (isOpen: boolean) => void;
   setViewMode: (mode: ViewMode) => void;
   setCurrentDate: (date: Dayjs) => void;
   goForward: () => void;
@@ -29,8 +27,6 @@ interface CalendarStore {
 export const useCalendarStore = create<CalendarStore>((set) => ({
   viewMode: "day",
   events: [],
-  // modalOpen: false,
-  // setModalOpen: (isOpen) => set({ modalOpen: isOpen }),
   addEvent: (event) => set((state) => ({ events: [...state.events, event] })),
   removeEvent: (id) =>
     set((state) => ({
