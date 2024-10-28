@@ -10,11 +10,13 @@ const HeaderComponent = () => {
   const { viewMode, currentDate, setViewMode, goForward, goBackward } =
     useCalendarStore();
   const today = new Date();
-  const startDate = startOfWeek(currentDate.toDate(), { weekStartsOn: 0 });
+  const startDate = startOfWeek(dayjs(currentDate).toDate(), {
+    weekStartsOn: 0,
+  });
   const days = Array.from({ length: 7 }, (_, i) => addDays(startDate, i));
   return (
     <Layout>
-      <Header className=" fixed top-0 left-0 right-0 z-10 transition-opacity duration-300">
+      <Header className=" fixed top-0 left-0 right-0 z-10 transition-opacity duration-300 bg-orange-400">
         <div className="flex justify-center items-center">
           <img src={icon} alt="Icon" className="w-10 h-10" />
           <h1 className="text-3xl p-3 font-bold text-center text-white">
@@ -43,7 +45,7 @@ const HeaderComponent = () => {
           <div>
             <span className="text-lg font-semibold">
               {currentDate
-                ? currentDate.format(
+                ? dayjs(currentDate).format(
                     viewMode === "year"
                       ? "YYYY"
                       : viewMode === "month"
@@ -55,12 +57,14 @@ const HeaderComponent = () => {
           </div>
           <div className="flex gap-2">
             <DatePicker
-              value={currentDate}
+              value={
+                dayjs.isDayjs(currentDate) ? currentDate : dayjs(currentDate)
+              }
               format={
                 viewMode === "year"
                   ? "YYYY"
                   : viewMode === "month"
-                  ? "Ngày" + "MMMM YYYY"
+                  ? "Ngày MMMM YYYY"
                   : "DD/MM/YYYY"
               }
               onChange={(date) => {
@@ -91,22 +95,22 @@ const HeaderComponent = () => {
                 {/* Hiển thị thứ */}
                 <div
                   className={`text-lg ${
-                    isSameDay(currentDate.toDate(), today)
-                      ? "text-blue-600"
+                    isSameDay(dayjs(currentDate).toDate(), today)
+                      ? "text-orange-600"
                       : ""
                   }`}
                 >
-                  {format(currentDate.toDate(), "EEE")}
+                  {format(dayjs(currentDate).toDate(), "EEE")}
                 </div>
                 {/* Hiển thị ngày */}
                 <div
                   className={`text-2xl ${
-                    isSameDay(currentDate.toDate(), today)
-                      ? "bg-blue-500 text-white rounded-full w-10 h-10 mx-auto flex items-center justify-center"
+                    isSameDay(dayjs(currentDate).toDate(), today)
+                      ? "bg-orange-500 text-white rounded-full w-10 h-10 mx-auto flex items-center justify-center"
                       : "w-10 h-10 mx-auto"
                   }`}
                 >
-                  {format(currentDate.toDate(), "d")}
+                  {format(dayjs(currentDate).toDate(), "d")}
                 </div>
               </div>
             )}
@@ -116,7 +120,7 @@ const HeaderComponent = () => {
                   {/* Hiển thị thứ */}
                   <div
                     className={`text-lg ${
-                      isSameDay(day, today) ? "text-blue-600 font-bold" : ""
+                      isSameDay(day, today) ? "text-orange-600 font-bold" : ""
                     }`}
                   >
                     {format(day, "EEE")}
@@ -125,7 +129,7 @@ const HeaderComponent = () => {
                   <div
                     className={`text-2xl ${
                       isSameDay(day, today)
-                        ? "bg-blue-500 text-white rounded-full w-10 h-10 mx-auto flex items-center justify-center"
+                        ? "bg-orange-500 text-white rounded-full w-10 h-10 mx-auto flex items-center justify-center"
                         : "w-10 h-10 mx-auto"
                     }`}
                   >
