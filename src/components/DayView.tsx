@@ -35,52 +35,65 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick }) => {
   const currentPosition =
     ((currentHour * 60 + currentMinutes) / (24 * 60)) * 100;
 
+  const calculateEventPositions = (events: any) => {
+    const eventPositions = events.map(
+      (event: any, index: number, allEvents: any[]) => {
+        const overlappingEvents = allEvents.filter(
+          (e) =>
+            dayjs(e.start).isBefore(event.end) &&
+            dayjs(e.end).isAfter(event.start)
+        );
+
+        const eventWidth = 100 / overlappingEvents.length;
+        const eventIndex = overlappingEvents.findIndex(
+          (e) => e.id === event.id
+        );
+
+        return {
+          ...event,
+          width: `${eventWidth}%`,
+          left: `${eventIndex * eventWidth}%`,
+        };
+      }
+    );
+
+    return eventPositions;
+  };
+
+  const eventPositions = calculateEventPositions(
+    events.filter((event) => dayjs(event.start).isSame(date, "day"))
+  );
+
   return (
     <DndContext>
       <div className="col-span-7 relative">
         {hours.map((hour) => (
           <HourBlock key={hour} hour={hour} onClick={handleClick} />
         ))}
+        <div className="flex">
+          {eventPositions.map((event: any) => (
+            <DraggableEvent
+              key={event.id}
+              event={event}
+              style={{
+                width: event.width,
+                left: event.left,
+              }}
+              onDrop={(newStartTime: Date) => {
+                const duration =
+                  new Date(event.end).getTime() -
+                  new Date(event.start).getTime();
+                const newEndTime = new Date(newStartTime.getTime() + duration);
+                updateEventTime(event.id, newStartTime, newEndTime);
+              }}
+            />
+          ))}
+        </div>
         <CurrentTimeIndicator
           currentPosition={currentPosition}
           currentHour={currentHour}
           currentMinutes={currentMinutes}
         />
-
-        {events
-          .filter((event) => dayjs(event.start).isSame(date, "day"))
-          .map((event, index, filteredEvents) => {
-            // Xác định các sự kiện trùng nhau
-            const overlappingEvents = filteredEvents.filter(
-              (e) =>
-                dayjs(e.start).isBefore(event.end) &&
-                dayjs(e.end).isAfter(event.start)
-            );
-            const eventWidth = 100 / overlappingEvents.length;
-            const eventIndex = overlappingEvents.findIndex(
-              (e) => e.id === event.id
-            );
-
-            return (
-              <DraggableEvent
-                key={event.id}
-                event={event}
-                style={{
-                  width: `${eventWidth}%`,
-                  left: `${eventIndex * eventWidth}%`,
-                }}
-                onDrop={(newStartTime: Date) => {
-                  const duration =
-                    new Date(event.end).getTime() -
-                    new Date(event.start).getTime();
-                  const newEndTime = new Date(
-                    newStartTime.getTime() + duration
-                  );
-                  updateEventTime(event.id, newStartTime, newEndTime);
-                }}
-              />
-            );
-          })}
       </div>
     </DndContext>
   );
