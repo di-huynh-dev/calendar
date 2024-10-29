@@ -8,15 +8,13 @@ const WeekView = () => {
     weekStartsOn: 1,
   });
 
-  const hours = Array.from({ length: 24 }, (_, i) => i);
-
   return (
-    <div>
-      {Array.from({ length: 7 }).map((_, dayIndex) => {
-        const day = addDays(weekStart, dayIndex);
-
-        return <div key={dayIndex} className="border-r"></div>;
-      })}
+    <div className="col">
+      <div className="grid grid-cols-7">
+        {Array.from({ length: 7 }).map((_, dayIndex) => {
+          return <div key={dayIndex} className="border-r"></div>;
+        })}
+      </div>
     </div>
   );
 };

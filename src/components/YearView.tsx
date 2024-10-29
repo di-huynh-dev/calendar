@@ -8,112 +8,120 @@ interface YearViewProps {
   onDateSelect: (date: Date) => void;
 }
 
-const YearView: React.FC<YearViewProps> = ({ year, onDateSelect }) => {
-  const { events, holidays, fetchHolidays } = useCalendarStore();
+const YearView: React.FC<YearViewProps> = React.memo(
+  ({ year, onDateSelect }) => {
+    const { events, holidays, fetchHolidays } = useCalendarStore();
 
-  useEffect(() => {
-    fetchHolidays(year);
-  }, [year, fetchHolidays]);
+    useEffect(() => {
+      fetchHolidays(year);
+    }, [year, fetchHolidays]);
 
-  const getEventsForDate = (date: dayjs.Dayjs) => {
-    const dayEvents = events.filter((event) =>
-      dayjs(event.start).isSame(date, "day")
-    );
-    const dayHolidays = holidays
-      .filter((holiday) => dayjs(holiday.date).isSame(date, "day"))
-      .map((holiday) => ({
-        ...holiday,
-        title: holiday.name,
-      }));
-    return [...dayEvents, ...dayHolidays];
-  };
+    const getEventsForDate = (date: dayjs.Dayjs) => {
+      const dayEvents = events.filter((event) =>
+        dayjs(event.start).isSame(date, "day")
+      );
+      const dayHolidays = holidays
+        .filter((holiday) => dayjs(holiday.date).isSame(date, "day"))
+        .map((holiday) => ({
+          ...holiday,
+          title: holiday.name,
+        }));
+      return [...dayEvents, ...dayHolidays];
+    };
 
-  const months = Array.from({ length: 12 }, (_, monthIndex) => {
-    const startOfMonth = dayjs(new Date(year, monthIndex, 1));
-    const daysInMonth = startOfMonth.daysInMonth();
+    const months = Array.from({ length: 12 }, (_, monthIndex) => {
+      const startOfMonth = dayjs(new Date(year, monthIndex, 1));
+      const daysInMonth = startOfMonth.daysInMonth();
+
+      return (
+        <div
+          key={monthIndex}
+          className="p-2 border border-orange-500 rounded-lg"
+        >
+          <h3 className="text-center font-bold mb-2">
+            {startOfMonth.format("MMMM")}
+          </h3>
+          <div className="grid grid-cols-7 text-center text-sm  mb-2">
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+              <div key={day}>{day}</div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-1">
+            {Array.from({ length: daysInMonth }, (_, dayIndex) => {
+              const currentDate = startOfMonth.add(dayIndex, "day");
+              const dailyEvents = getEventsForDate(currentDate);
+
+              return (
+                <Tooltip
+                  title={
+                    <>
+                      {dailyEvents.length > 0 ? (
+                        dailyEvents.map((event) => (
+                          <div key={event.id}>
+                            <p>
+                              {event.title ? event.title : "(Không có tiêu đề)"}{" "}
+                              (
+                              {"start" in event
+                                ? dayjs(event.start).format("HH:mm")
+                                : "Cả ngày"}{" "}
+                              {"start" in event && "end" in event
+                                ? `- ${dayjs(event.end).format("HH:mm")}`
+                                : ""}{" "}
+                              {"start" in event
+                                ? dayjs(event.start).format("A")
+                                : ""}
+                              )
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <p>Không có sự kiện nào</p>
+                      )}
+                    </>
+                  }
+                  color="#fc7c33"
+                >
+                  <div
+                    key={dayIndex}
+                    className="text-center text-sm p-1 cursor-pointer hover:bg-orange-100 rounded"
+                    onClick={() => onDateSelect(currentDate.toDate())}
+                  >
+                    <span
+                      className={`inline-block ${
+                        currentDate.isSame(dayjs(), "day")
+                          ? "text-orange-500 font-bold"
+                          : ""
+                      }`}
+                    >
+                      {currentDate.date()}
+                    </span>
+
+                    {dailyEvents.length > 0 && (
+                      <div className="mt-1 flex justify-center">
+                        {dailyEvents.map((event, index) => (
+                          <span
+                            key={index}
+                            className="inline-block w-1.5 h-1.5 rounded-full"
+                            style={{
+                              backgroundColor: event.colorTag || "#3b82f6",
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </Tooltip>
+              );
+            })}
+          </div>
+        </div>
+      );
+    });
 
     return (
-      <div key={monthIndex} className="p-2 border border-orange-500 rounded-lg">
-        <h3 className="text-center font-bold mb-2">
-          {startOfMonth.format("MMMM")}
-        </h3>
-        <div className="grid grid-cols-7 text-center text-sm  mb-2">
-          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-            <div key={day}>{day}</div>
-          ))}
-        </div>
-        <div className="grid grid-cols-7 gap-1">
-          {Array.from({ length: daysInMonth }, (_, dayIndex) => {
-            const currentDate = startOfMonth.add(dayIndex, "day");
-            const dailyEvents = getEventsForDate(currentDate);
-
-            return (
-              <Tooltip
-                title={
-                  <>
-                    {dailyEvents.length > 0 ? (
-                      dailyEvents.map((event) => (
-                        <div key={event.id}>
-                          <p>
-                            {event.title ? event.title : "(Không có tiêu đề)"} (
-                            {"start" in event
-                              ? dayjs(event.start).format("HH:mm")
-                              : "Cả ngày"}{" "}
-                            {"start" in event && "end" in event
-                              ? `- ${dayjs(event.end).format("HH:mm")}`
-                              : ""}{" "}
-                            {"start" in event
-                              ? dayjs(event.start).format("A")
-                              : ""}
-                            )
-                          </p>
-                        </div>
-                      ))
-                    ) : (
-                      <p>Không có sự kiện nào</p>
-                    )}
-                  </>
-                }
-                color="#fc7c33"
-              >
-                <div
-                  key={dayIndex}
-                  className="text-center text-sm p-1 cursor-pointer hover:bg-orange-100 rounded"
-                  onClick={() => onDateSelect(currentDate.toDate())}
-                >
-                  <span
-                    className={`inline-block ${
-                      currentDate.isSame(dayjs(), "day")
-                        ? "text-orange-500 font-bold"
-                        : ""
-                    }`}
-                  >
-                    {currentDate.date()}
-                  </span>
-
-                  {dailyEvents.length > 0 && (
-                    <div className="mt-1 flex justify-center">
-                      {dailyEvents.map((event, index) => (
-                        <span
-                          key={index}
-                          className="inline-block w-1.5 h-1.5 rounded-full"
-                          style={{
-                            backgroundColor: event.colorTag || "#3b82f6",
-                          }}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </Tooltip>
-            );
-          })}
-        </div>
-      </div>
+      <div className="grid grid-cols-4 gap-x-20 gap-y-3 p-4">{months}</div>
     );
-  });
-
-  return <div className="grid grid-cols-4 gap-x-20 gap-y-3 p-4">{months}</div>;
-};
+  }
+);
 
 export default YearView;

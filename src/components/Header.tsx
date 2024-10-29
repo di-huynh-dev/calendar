@@ -156,9 +156,9 @@ const HeaderComponent = () => {
               ))}
 
             {/* Display Holidays and All-Day Events */}
-            {(viewMode === "day" || viewMode === "week") && (
+            {viewMode === "day" && (
               <div className="mx-10">
-                <div className="flex gap-2 ">
+                <div className="flex gap-2">
                   {currentHolidays.map((holiday) => (
                     <div className="p-2 border border-dashed rounded-lg bg-orange-100">
                       <span className="text-orange-500">
