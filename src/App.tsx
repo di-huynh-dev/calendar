@@ -10,6 +10,7 @@ import AddEventModal from "./components/AddEventModal";
 import WeekView from "./components/WeekView";
 import MonthView from "./components/MonthView";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import YearView from "./components/YearView";
 dayjs.extend(isSameOrAfter);
 
 const Calendar: React.FC = () => {
@@ -44,6 +45,7 @@ const Calendar: React.FC = () => {
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const startOfMonth = dayjs(currentDate).startOf("month");
+  const year = dayjs(currentDate).year();
 
   return (
     <div
@@ -91,6 +93,10 @@ const Calendar: React.FC = () => {
         )}
 
         {viewMode === "week" && <WeekView />}
+
+        {viewMode === "year" && (
+          <YearView year={year} onDateSelect={handleDateSelect} />
+        )}
 
         {isModalOpen && (
           <AddEventModal

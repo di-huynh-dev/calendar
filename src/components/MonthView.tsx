@@ -28,14 +28,15 @@ const MonthView: React.FC<MonthViewProps> = ({
       <ul>
         {dailyEvents.map((event) => (
           <Tooltip
+            color="#fc7c33"
             key={event.id}
             title={
               <div>
                 <p>
-                  {!event.title ? "(Không có tiêu đề)" : event.title} lúc{" "}
+                  {event.title ? event.title : "(Không có tiêu đề)"} (
                   {dayjs(event.start).format("HH:mm")} -{" "}
                   {dayjs(event.end).format("HH:mm")}{" "}
-                  {dayjs(event.start).format("A")}
+                  {dayjs(event.start).format("A")})
                 </p>
               </div>
             }
