@@ -14,6 +14,7 @@ import {
   TimePicker,
   Tooltip,
 } from "antd";
+
 import {
   ListOrdered,
   MapPin,
@@ -166,7 +167,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
     <Modal
       title={
         <div className="flex items-center justify-between">
-          <p className="text-center font-bold">
+          <p className="font-bold">
             {isEditMode ? "Chi tiết sự kiện" : "Thêm sự kiện mới"}
           </p>
           <div className="flex gap-4 items-center">
@@ -234,13 +235,14 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         autoComplete="off"
         layout="horizontal"
         disabled={!isEditing}
-        className="max-h-[calc(100vh-200px)] overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 scrollbar-w-1"
+        className="max-h-[calc(100vh-200px)] overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 scrollbar-w-1]"
       >
         <Form.Item
           name="title"
           className={`w-full ml-6 border-b-2 ${
             isEditing ? " hover:border-orange-500" : ""
           }`}
+          rules={[{ max: 100, message: "Tiêu đề qúa dài" }]}
         >
           <Input
             placeholder="Thêm tiêu đề"
@@ -386,16 +388,14 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
             ></img>
           }
         >
-          <Row gutter={24}>
-            <Form.Item
-              name="googleMeetLink"
-              className={`w-full ml-6 border-b-2 ${
-                isEditing ? "hover:border-orange-500" : ""
-              }`}
-            >
-              <Input placeholder="Thêm liên kết Google Meet" bordered={false} />
-            </Form.Item>
-          </Row>
+          <Form.Item
+            name="googleMeetLink"
+            className={`w-full border-b-2 ${
+              isEditing ? "hover:border-orange-500" : ""
+            }`}
+          >
+            <Input placeholder="Thêm liên kết Google Meet" bordered={false} />
+          </Form.Item>
         </Form.Item>
         <Form.Item label={<MapPin size={14} />}>
           <Row gutter={24}>
@@ -498,16 +498,14 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
                 </Select>
               </Form.Item>
             </Col>
-            <Col xs={24} sm={24}>
-              <Form.Item
-                className={`w-full ml-6 border-b-2 ${
-                  isEditing ? " hover:border-orange-500" : ""
-                }`}
-                name={["location", "address"]}
-              >
-                <Input placeholder="Địa chỉ cụ thể" bordered={false} />
-              </Form.Item>
-            </Col>
+            <Form.Item
+              className={`w-full ml-6 border-b-2 ${
+                isEditing ? " hover:border-orange-500" : ""
+              }`}
+              name={["location", "address"]}
+            >
+              <Input placeholder="Địa chỉ cụ thể" bordered={false} />
+            </Form.Item>
           </Row>
         </Form.Item>
         <Form.Item label={<Palette size={14} />} name="colorTag">

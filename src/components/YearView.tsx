@@ -10,7 +10,6 @@ interface YearViewProps {
 
 const YearView: React.FC<YearViewProps> = ({ year, onDateSelect }) => {
   const { events, holidays, fetchHolidays } = useCalendarStore();
-  console.log("YearView render", holidays);
 
   useEffect(() => {
     fetchHolidays(year);

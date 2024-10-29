@@ -23,7 +23,6 @@ const HeaderComponent = () => {
   });
   const days = Array.from({ length: 7 }, (_, i) => addDays(startDate, i));
 
-  // Get holidays and all-day events for the current date
   const currentHolidays = holidays.filter((holiday) =>
     dayjs(holiday.date).isSame(currentDate, "day")
   );
