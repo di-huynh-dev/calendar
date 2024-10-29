@@ -15,6 +15,7 @@ interface CalendarStore {
   events: Event[];
   addEvent: (event: Event) => void;
   removeEvent: (id: string) => void;
+  updateEvent: (event: Event) => void;
   updateEventTime: (id: string, start: Date, end: Date) => void;
 }
 
@@ -29,6 +30,11 @@ export const useCalendarStore = create<CalendarStore>()(
         set((state) => ({
           events: state.events.filter((event) => event.id !== id),
         })),
+      updateEvent: (event) => {
+        set((state) => ({
+          events: state.events.map((e) => (e.id === event.id ? event : e)),
+        }));
+      },
       updateEventTime: (id: string, start: Date, end: Date) => {
         set((state) => ({
           events: state.events.map((event) =>

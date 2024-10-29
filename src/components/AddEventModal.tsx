@@ -2,15 +2,28 @@
 import {
   Button,
   Col,
+  ColorPicker,
   DatePicker,
   Form,
   Input,
   Modal,
+  Popconfirm,
   Row,
   Select,
   TimePicker,
+  Tooltip,
 } from "antd";
-import { ListOrdered, MapPin, Timer, Users } from "lucide-react";
+import {
+  ListOrdered,
+  MapPin,
+  Palette,
+  Pencil,
+  Timer,
+  Trash,
+  Undo2,
+  Users,
+  X,
+} from "lucide-react";
 import GoogleMeetIcon from "../assets/meet.png";
 import dayjs from "dayjs";
 import cities from "../data/city.json";
@@ -21,29 +34,57 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useCalendarStore } from "../store/useCalendarStore";
 import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
 
 interface AddEventModalProps {
   selectedTime: Date | null;
   onClose: () => void;
+  selectedEvent: any;
 }
 
 const AddEventModal: React.FC<AddEventModalProps> = ({
   selectedTime,
+  selectedEvent,
   onClose,
 }) => {
-  const { addEvent } = useCalendarStore();
-
-  const handleCancel = () => {
-    onClose();
-  };
+  const { addEvent, removeEvent, updateEvent } = useCalendarStore();
+  const isEditMode = Boolean(selectedEvent);
+  const [isEditing, setIsEditing] = useState(!isEditMode);
 
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (isEditMode && selectedEvent) {
+      form.setFieldsValue({
+        title: selectedEvent.title,
+        time: {
+          date: dayjs(selectedEvent.start),
+          hour: [dayjs(selectedEvent.start), dayjs(selectedEvent.end)],
+        },
+        googleMeetLink: selectedEvent.googleMeetLink,
+        location: selectedEvent.location,
+        participants: selectedEvent.participants,
+        description: selectedEvent.description,
+        colorTag: selectedEvent.colorTag,
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [selectedEvent, form, isEditMode]);
+
   const selectedCity = Form.useWatch(["location", "city"], form);
   const selectedDistrict = Form.useWatch(["location", "district"], form);
 
   const onFinish = (values: any) => {
-    const { title, time, googleMeetLink, location, participants, description } =
-      values;
+    const {
+      title,
+      time,
+      googleMeetLink,
+      location,
+      participants,
+      description,
+      colorTag,
+    } = values;
 
     const selectedDate = time.date ? dayjs(time.date) : dayjs();
     const startTime = selectedDate
@@ -56,7 +97,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
       .second(0);
 
     const event = {
-      id: dayjs().valueOf().toString(),
+      id: isEditMode ? selectedEvent.id : dayjs().valueOf().toString(),
       title,
       start: startTime.toDate(),
       end: endTime.toDate(),
@@ -64,13 +105,31 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
       location,
       participants,
       description,
+      colorTag,
     };
 
-    console.log(event);
-    addEvent(event);
+    if (isEditMode) {
+      updateEvent(event);
+      toast.success("Sự kiện đã được cập nhật");
+    } else {
+      addEvent(event);
+      toast.success("Sự kiện đã được thêm thành công");
+    }
+
     form.resetFields();
     onClose();
-    toast.success("Sự kiện đã được thêm thành công");
+  };
+
+  const handleCancel = () => {
+    onClose();
+  };
+
+  const handleDeleteEvent = () => {
+    if (selectedEvent) {
+      removeEvent(selectedEvent.id);
+      onClose();
+      toast.success("Sự kiện đã được xóa thành công");
+    }
   };
 
   const modulesQuill = {
@@ -102,13 +161,66 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
 
   return (
     <Modal
-      title={<p className="text-center font-bold">Thêm sự kiện mới</p>}
-      open={!!selectedTime}
+      title={
+        <div className="flex items-center justify-between">
+          <p className="text-center font-bold">
+            {isEditMode ? "Chi tiết sự kiện" : "Thêm sự kiện mới"}
+          </p>
+          <div className="flex gap-4 items-center">
+            {isEditMode && (
+              <>
+                {isEditing ? (
+                  <Tooltip title="Hủy chỉnh sửa">
+                    <Popconfirm
+                      title="Xác nhận hủy thay đổi"
+                      onConfirm={() => {
+                        setIsEditing(false);
+                      }}
+                    >
+                      <button>
+                        <Undo2 size={16} />
+                      </button>
+                    </Popconfirm>
+                  </Tooltip>
+                ) : (
+                  <>
+                    <Tooltip title="Chỉnh sửa sự kiện">
+                      <button
+                        onClick={() => {
+                          setIsEditing(true);
+                        }}
+                      >
+                        <Pencil size={16} />
+                      </button>
+                    </Tooltip>
+                    <Tooltip title="Xóa sự kiện">
+                      <Popconfirm
+                        title="Xác nhận Xóa sự kiện"
+                        onConfirm={handleDeleteEvent}
+                      >
+                        <button>
+                          <Trash size={16} />
+                        </button>
+                      </Popconfirm>
+                    </Tooltip>
+                  </>
+                )}
+              </>
+            )}
+
+            <button onClick={handleCancel}>
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      }
+      open
       onCancel={handleCancel}
       centered
       width={650}
       footer={null}
       maskClosable={true}
+      closable={false}
     >
       <Form
         form={form}
@@ -118,11 +230,14 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         requiredMark={false}
         autoComplete="off"
         layout="horizontal"
+        disabled={!isEditing}
         className="max-h-[calc(100vh-200px)] overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 scrollbar-w-1"
       >
         <Form.Item
           name="title"
-          className="border-b-2 hover:border-orange-500 w-full ml-6"
+          className={`w-full ml-6 border-b-2 ${
+            isEditing ? " hover:border-orange-500" : ""
+          }`}
         >
           <Input
             placeholder="Thêm tiêu đề"
@@ -159,7 +274,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
                         <img
                           src={person.avatar}
                           alt={person.name}
-                          className="w-4 h-4 object-cover rounded-full mr-2"
+                          className="w-6 h-6 object-cover rounded-full mr-2"
                         />
                         <div>
                           <p>{person.name}</p>
@@ -175,7 +290,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
                   const selectedParticipants =
                     getFieldValue("participants") || [];
                   return (
-                    <div className="mt-2">
+                    <div className="mt-2 grid grid-cols-2 gap-2">
                       {selectedParticipants.map((id: string) => {
                         const person = persons.find((p) => p.id === Number(id));
                         return (
@@ -183,7 +298,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
                             <img
                               src={person?.avatar}
                               alt={person?.name}
-                              className="w-4 h-4 object-cover rounded-full mr-2"
+                              className="w-6 h-6 object-cover rounded-full mr-2"
                             />
                             <div>
                               <p>{person?.name}</p>
@@ -246,7 +361,9 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
           <Row gutter={24}>
             <Form.Item
               name="googleMeetLink"
-              className="border-b-2 hover:border-orange-500 w-full"
+              className={`w-full ml-6 border-b-2 ${
+                isEditing ? "hover:border-orange-500" : ""
+              }`}
             >
               <Input placeholder="Thêm liên kết Google Meet" bordered={false} />
             </Form.Item>
@@ -307,7 +424,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
                       },
                     });
                   }}
-                  disabled={!selectedCity}
+                  disabled={!selectedCity || !isEditing}
                 >
                   {Object.values(districts)
                     .filter((district) => district.parent_code === selectedCity)
@@ -341,7 +458,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
                       },
                     });
                   }}
-                  disabled={!selectedDistrict}
+                  disabled={!selectedDistrict || !isEditing}
                 >
                   {Object.values(wards)
                     .filter((ward) => ward.parent_code === selectedDistrict)
@@ -355,7 +472,9 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
             </Col>
             <Col xs={24} sm={24}>
               <Form.Item
-                className="border-b-2 hover:border-orange-500 w-full"
+                className={`w-full ml-6 border-b-2 ${
+                  isEditing ? " hover:border-orange-500" : ""
+                }`}
                 name={["location", "address"]}
               >
                 <Input placeholder="Địa chỉ cụ thể" bordered={false} />
@@ -363,7 +482,15 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
             </Col>
           </Row>
         </Form.Item>
-
+        <Form.Item label={<Palette size={14} />} name="colorTag">
+          <ColorPicker
+            allowClear
+            showText
+            onChange={(color) => {
+              form.setFieldsValue({ colorTag: color.toHexString() });
+            }}
+          />
+        </Form.Item>
         <Form.Item label={<ListOrdered size={14} />} name="description">
           <Col span={24}>
             <ReactQuill
@@ -372,25 +499,27 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
               onChange={(value) => form.setFieldsValue({ description: value })}
               modules={modulesQuill}
               formats={formatsQuill}
+              value={form.getFieldValue("description")}
+              readOnly={!isEditing}
             />
             <style>
               {`
               .ql-toolbar .ql-video {
-                margin: 0 auto; 
-                display: block;
-                width: 100%; 
+              margin: 0 auto; 
+              display: block;
+              width: 100%; 
               }
               .ql-video {
-                width: 100%;
-                height: 250px;
+              width: 100%;
+              height: 250px;
               }
               .ql-image {
-                width: 100%;
-                height: 150px;
+              width: 100%;
+              height: 150px;
               }
               .ql-tooltip.ql-editing{
-                margin-top: -30px;
-                left: 60px !important;
+              margin-top: -30px;
+              left: 60px !important;
               }
             `}
             </style>
@@ -402,7 +531,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
             htmlType="submit"
             className="w-full mt-8 shadow-lg"
           >
-            Thêm sự kiện
+            {isEditMode ? "Cập nhật sự kiện" : "Thêm sự kiện"}
           </Button>
         </Form.Item>
       </Form>

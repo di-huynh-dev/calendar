@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { format, setHours } from "date-fns";
 import { useState } from "react";
@@ -10,17 +11,24 @@ const Calendar: React.FC = () => {
   const { viewMode, currentDate } = useCalendarStore();
   const [selectedTime, setSelectedTime] = useState<Date | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const handleTimeClick = (time: Date) => {
     setSelectedTime(time);
+    setSelectedEvent(null);
     setIsModalOpen(true);
   };
 
+  const handleEventClick = (event: any) => {
+    setSelectedEvent(event);
+    setSelectedTime(null);
+    setIsModalOpen(true);
+  };
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedTime(null);
+    setSelectedEvent(null);
   };
-
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
   return (
@@ -42,11 +50,19 @@ const Calendar: React.FC = () => {
         </div>
 
         {viewMode === "day" && (
-          <DayView date={currentDate} onTimeClick={handleTimeClick} />
+          <DayView
+            date={currentDate}
+            onTimeClick={handleTimeClick}
+            onEventClick={handleEventClick}
+          />
         )}
 
         {isModalOpen && (
-          <AddEventModal selectedTime={selectedTime} onClose={closeModal} />
+          <AddEventModal
+            selectedTime={selectedTime}
+            onClose={closeModal}
+            selectedEvent={selectedEvent}
+          />
         )}
       </div>
     </div>

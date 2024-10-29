@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import { useCalendarStore } from "../store/useCalendarStore";
@@ -9,9 +10,14 @@ import { HourBlock } from "./HourBlock";
 interface DayViewProps {
   date: Dayjs;
   onTimeClick: (time: Date) => void;
+  onEventClick: (event: any) => void;
 }
 
-const DayView: React.FC<DayViewProps> = ({ date, onTimeClick }) => {
+const DayView: React.FC<DayViewProps> = ({
+  date,
+  onTimeClick,
+  onEventClick,
+}) => {
   const { events, updateEventTime } = useCalendarStore();
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
 
@@ -72,21 +78,25 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick }) => {
         ))}
         <div className="flex">
           {eventPositions.map((event: any) => (
-            <DraggableEvent
-              key={event.id}
-              event={event}
-              style={{
-                width: event.width,
-                left: event.left,
-              }}
-              onDrop={(newStartTime: Date) => {
-                const duration =
-                  new Date(event.end).getTime() -
-                  new Date(event.start).getTime();
-                const newEndTime = new Date(newStartTime.getTime() + duration);
-                updateEventTime(event.id, newStartTime, newEndTime);
-              }}
-            />
+            <div onPointerUp={() => onEventClick(event)}>
+              <DraggableEvent
+                key={event.id}
+                event={event}
+                style={{
+                  width: event.width,
+                  left: event.left,
+                }}
+                onDrop={(newStartTime: Date) => {
+                  const duration =
+                    new Date(event.end).getTime() -
+                    new Date(event.start).getTime();
+                  const newEndTime = new Date(
+                    newStartTime.getTime() + duration
+                  );
+                  updateEventTime(event.id, newStartTime, newEndTime);
+                }}
+              />
+            </div>
           ))}
         </div>
         <CurrentTimeIndicator
