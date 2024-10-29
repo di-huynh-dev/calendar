@@ -13,4 +13,5 @@ export interface Event {
   participants?: string[];
   googleMeetLink?: string;
   colorTag?: string;
+  allDay?: boolean;
 }

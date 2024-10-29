@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Button,
+  Checkbox,
   Col,
   ColorPicker,
   DatePicker,
@@ -84,6 +85,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
       participants,
       description,
       colorTag,
+      allDay,
     } = values;
 
     const selectedDate = time.date ? dayjs(time.date) : dayjs();
@@ -106,6 +108,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
       participants,
       description,
       colorTag,
+      allDay,
     };
 
     if (isEditMode) {
@@ -344,10 +347,35 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
                   format={"hh:mm A"}
                   className="w-full"
                   minuteStep={15}
+                  disabled={form.getFieldValue("allDay")}
                 />
               </Form.Item>
             </Col>
           </Row>
+        </Form.Item>
+        <Form.Item name="allDay" valuePropName="checked">
+          <Checkbox
+            onChange={(e) => {
+              if (e.target.checked) {
+                const date = form.getFieldValue(["time", "date"]) || dayjs();
+                form.setFieldsValue({
+                  time: {
+                    date,
+                    hour: [date.startOf("day"), date.endOf("day")],
+                  },
+                });
+              } else {
+                form.setFieldsValue({
+                  time: {
+                    ...form.getFieldValue("time"),
+                    hour: undefined,
+                  },
+                });
+              }
+            }}
+          >
+            Cả ngày
+          </Checkbox>
         </Form.Item>
         <Form.Item
           label={

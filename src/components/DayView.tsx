@@ -42,7 +42,9 @@ const DayView: React.FC<DayViewProps> = ({
     ((currentHour * 60 + currentMinutes) / (24 * 60)) * 100;
 
   const calculateEventPositions = (events: any) => {
-    const eventPositions = events.map(
+    const filteredEvents = events.filter((event: any) => !event.allDay);
+
+    const eventPositions = filteredEvents.map(
       (event: any, index: number, allEvents: any[]) => {
         const overlappingEvents = allEvents.filter(
           (e) =>
@@ -65,7 +67,6 @@ const DayView: React.FC<DayViewProps> = ({
 
     return eventPositions;
   };
-
   const eventPositions = calculateEventPositions(
     events.filter((event) => dayjs(event.start).isSame(date, "day"))
   );

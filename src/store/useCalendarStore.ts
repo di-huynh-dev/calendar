@@ -2,12 +2,15 @@ import { create } from "zustand";
 import dayjs, { Dayjs } from "dayjs";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { Event } from "../types/event.type";
+import Holidays from "date-holidays";
 
 type ViewMode = "day" | "week" | "month" | "year";
 
 interface CalendarStore {
   viewMode: ViewMode;
   currentDate: Dayjs;
+  holidays: { id: string; date: string; name: string; colorTag: string }[];
+  fetchHolidays: (year: number) => void;
   setViewMode: (mode: ViewMode) => void;
   setCurrentDate: (date: Dayjs) => void;
   goForward: () => void;
@@ -25,7 +28,17 @@ export const useCalendarStore = create<CalendarStore>()(
       viewMode: "day",
       events: [],
       currentDate: dayjs(),
-
+      holidays: [],
+      fetchHolidays: (year: number) => {
+        const hd = new Holidays("VN");
+        const holidays = hd.getHolidays(year).map((holiday, index) => ({
+          id: index.toString(),
+          date: holiday.date,
+          name: holiday.name,
+          colorTag: "green",
+        }));
+        set({ holidays });
+      },
       addEvent: (event) =>
         set((state) => ({ events: [...state.events, event] })),
 

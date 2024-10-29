@@ -14,12 +14,24 @@ const HeaderComponent = () => {
     setViewMode,
     goForward,
     goBackward,
+    holidays,
+    events,
   } = useCalendarStore();
   const today = new Date();
   const startDate = startOfWeek(dayjs(currentDate).toDate(), {
     weekStartsOn: 0,
   });
   const days = Array.from({ length: 7 }, (_, i) => addDays(startDate, i));
+
+  // Get holidays and all-day events for the current date
+  const currentHolidays = holidays.filter((holiday) =>
+    dayjs(holiday.date).isSame(currentDate, "day")
+  );
+
+  const currentAllDayEvents = events.filter(
+    (event) => dayjs(event.start).isSame(currentDate, "day") && event.allDay
+  );
+
   return (
     <Layout>
       <Header className=" fixed top-0 left-0 right-0 z-10 transition-opacity duration-300 bg-orange-400">
@@ -143,6 +155,28 @@ const HeaderComponent = () => {
                   </div>
                 </div>
               ))}
+
+            {/* Display Holidays and All-Day Events */}
+            {(viewMode === "day" || viewMode === "week") && (
+              <div className="mx-10">
+                <div className="flex gap-2 ">
+                  {currentHolidays.map((holiday) => (
+                    <div className="p-2 border border-dashed rounded-lg bg-orange-100">
+                      <span className="text-orange-500">
+                        {holiday.name} ({dayjs(holiday.date).format("DD/MM")})
+                      </span>
+                    </div>
+                  ))}
+                  {currentAllDayEvents.map((event) => (
+                    <div className="p-2 border border-dashed rounded-lg bg-green-100">
+                      <span className="text-green-500">
+                        {event.title} ({dayjs(event.start).format("DD/MM")})
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

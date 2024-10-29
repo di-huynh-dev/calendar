@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import dayjs from "dayjs";
 import { useCalendarStore } from "../store/useCalendarStore";
 import { Tooltip } from "antd";
@@ -9,10 +9,24 @@ interface YearViewProps {
 }
 
 const YearView: React.FC<YearViewProps> = ({ year, onDateSelect }) => {
-  const { events } = useCalendarStore();
+  const { events, holidays, fetchHolidays } = useCalendarStore();
+  console.log("YearView render", holidays);
+
+  useEffect(() => {
+    fetchHolidays(year);
+  }, [year, fetchHolidays]);
 
   const getEventsForDate = (date: dayjs.Dayjs) => {
-    return events.filter((event) => dayjs(event.start).isSame(date, "day"));
+    const dayEvents = events.filter((event) =>
+      dayjs(event.start).isSame(date, "day")
+    );
+    const dayHolidays = holidays
+      .filter((holiday) => dayjs(holiday.date).isSame(date, "day"))
+      .map((holiday) => ({
+        ...holiday,
+        title: holiday.name,
+      }));
+    return [...dayEvents, ...dayHolidays];
   };
 
   const months = Array.from({ length: 12 }, (_, monthIndex) => {
@@ -43,9 +57,16 @@ const YearView: React.FC<YearViewProps> = ({ year, onDateSelect }) => {
                         <div key={event.id}>
                           <p>
                             {event.title ? event.title : "(Không có tiêu đề)"} (
-                            {dayjs(event.start).format("HH:mm")} -{" "}
-                            {dayjs(event.end).format("HH:mm")}{" "}
-                            {dayjs(event.start).format("A")})
+                            {"start" in event
+                              ? dayjs(event.start).format("HH:mm")
+                              : "Cả ngày"}{" "}
+                            {"start" in event && "end" in event
+                              ? `- ${dayjs(event.end).format("HH:mm")}`
+                              : ""}{" "}
+                            {"start" in event
+                              ? dayjs(event.start).format("A")
+                              : ""}
+                            )
                           </p>
                         </div>
                       ))
