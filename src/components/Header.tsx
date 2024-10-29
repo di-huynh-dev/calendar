@@ -7,8 +7,14 @@ import dayjs from "dayjs";
 import { format, addDays, startOfWeek, isSameDay } from "date-fns";
 
 const HeaderComponent = () => {
-  const { viewMode, currentDate, setViewMode, goForward, goBackward } =
-    useCalendarStore();
+  const {
+    viewMode,
+    currentDate,
+    setCurrentDate,
+    setViewMode,
+    goForward,
+    goBackward,
+  } = useCalendarStore();
   const today = new Date();
   const startDate = startOfWeek(dayjs(currentDate).toDate(), {
     weekStartsOn: 0,
@@ -64,12 +70,12 @@ const HeaderComponent = () => {
                 viewMode === "year"
                   ? "YYYY"
                   : viewMode === "month"
-                  ? "Ngày MMMM YYYY"
+                  ? "MMMM YYYY"
                   : "DD/MM/YYYY"
               }
               onChange={(date) => {
                 if (date) {
-                  useCalendarStore.setState({ currentDate: date });
+                  setCurrentDate(date);
                 }
               }}
             />

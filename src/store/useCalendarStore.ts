@@ -24,17 +24,22 @@ export const useCalendarStore = create<CalendarStore>()(
     (set) => ({
       viewMode: "day",
       events: [],
+      currentDate: dayjs(),
+
       addEvent: (event) =>
         set((state) => ({ events: [...state.events, event] })),
+
       removeEvent: (id) =>
         set((state) => ({
           events: state.events.filter((event) => event.id !== id),
         })),
+
       updateEvent: (event) => {
         set((state) => ({
           events: state.events.map((e) => (e.id === event.id ? event : e)),
         }));
       },
+
       updateEventTime: (id: string, start: Date, end: Date) => {
         set((state) => ({
           events: state.events.map((event) =>
@@ -42,8 +47,9 @@ export const useCalendarStore = create<CalendarStore>()(
           ),
         }));
       },
-      currentDate: dayjs(),
+
       setViewMode: (mode) => set({ viewMode: mode }),
+
       setCurrentDate: (date) => set({ currentDate: date }),
 
       goForward: () =>
