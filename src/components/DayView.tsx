@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import { useCalendarStore } from "../store/useCalendarStore";
@@ -67,6 +66,7 @@ const DayView: React.FC<DayViewProps> = ({
 
     return eventPositions;
   };
+
   const eventPositions = calculateEventPositions(
     events.filter((event) => dayjs(event.start).isSame(date, "day"))
   );
@@ -79,25 +79,27 @@ const DayView: React.FC<DayViewProps> = ({
         ))}
         <div className="flex">
           {eventPositions.map((event: any) => (
-            <div onPointerUp={() => onEventClick(event)}>
-              <DraggableEvent
-                key={event.id}
-                event={event}
-                style={{
-                  width: event.width,
-                  left: event.left,
-                }}
-                onDrop={(newStartTime: Date) => {
-                  const duration =
-                    new Date(event.end).getTime() -
-                    new Date(event.start).getTime();
-                  const newEndTime = new Date(
-                    newStartTime.getTime() + duration
-                  );
-                  updateEventTime(event.id, newStartTime, newEndTime);
-                }}
-              />
-            </div>
+            <>
+              <div onPointerUp={() => onEventClick(event)}>
+                <DraggableEvent
+                  key={event.id}
+                  event={event}
+                  style={{
+                    width: event.width,
+                    left: event.left,
+                  }}
+                  onDrop={(newStartTime: Date) => {
+                    const duration =
+                      new Date(event.end).getTime() -
+                      new Date(event.start).getTime();
+                    const newEndTime = new Date(
+                      newStartTime.getTime() + duration
+                    );
+                    updateEventTime(event.id, newStartTime, newEndTime);
+                  }}
+                />
+              </div>
+            </>
           ))}
         </div>
         <CurrentTimeIndicator

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import dayjs from "dayjs";
 
@@ -21,11 +21,28 @@ interface DraggableEventProps {
 const DraggableEvent: React.FC<DraggableEventProps> = ({
   event,
   style,
-  // onDrop,
+  onDrop,
 }) => {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: event.id,
   });
+
+  const [newStartTime, setNewStartTime] = useState<Date>(event.start);
+
+  useEffect(() => {
+    if (transform) {
+      const offsetY = transform.y;
+      const minutesToAdd = Math.round(offsetY / 30) * 15;
+      const updatedStartTime = dayjs(event.start)
+        .add(minutesToAdd, "minute")
+        .toDate();
+      setNewStartTime(roundToNearestQuarterHour(updatedStartTime));
+    }
+  }, [transform, event.start]);
+
+  const handleDrop = () => {
+    onDrop(newStartTime);
+  };
 
   const startTime = new Date(event.start);
   const endTime = new Date(event.end);
@@ -33,27 +50,35 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
   if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
     return null;
   }
-
+  const roundToNearestQuarterHour = (date: Date): Date => {
+    const minutes = date.getMinutes();
+    const roundedMinutes = Math.round(minutes / 15) * 15;
+    date.setMinutes(roundedMinutes);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    return date;
+  };
   return (
     <div
       ref={setNodeRef}
       {...attributes}
       {...listeners}
+      onPointerUp={handleDrop}
       style={{
         ...style,
         top: `${calculatePositionFromTime(startTime)}%`,
         height: `${calculateEventHeight(startTime, endTime)}%`,
         width: event.width,
         left: event.left,
-        opacity: isDragging ? 0.5 : 1,
+        transform: transform ? `translateY(${transform.y}px)` : undefined,
         position: "absolute",
         color: "white",
         textAlign: "left",
         borderRadius: "0.75rem",
         padding: "0.5rem",
+        borderLeft: "2px solid white",
         backgroundColor: event.colorTag ? event.colorTag : "#3b82f6",
       }}
-      className={`"absolute text-white text-left rounded-xl p-2 border-slate-300 border-2"`}
     >
       <div
         className={`text-md ${
@@ -64,8 +89,10 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
       >
         <p>{event.title}</p>
         <p>
-          {dayjs(event.start).format("HH:mm")} -{" "}
-          {dayjs(event.end).format("HH:mm")}
+          {dayjs(newStartTime).format("HH:mm")} -{" "}
+          {dayjs(newStartTime)
+            .add(dayjs(event.end).diff(dayjs(event.start)), "millisecond")
+            .format("HH:mm")}
         </p>
       </div>
     </div>
