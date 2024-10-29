@@ -1,5 +1,6 @@
 import React from "react";
 import { useDraggable } from "@dnd-kit/core";
+import dayjs from "dayjs";
 
 interface Event {
   id: string;
@@ -62,13 +63,10 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
         }`}
       >
         <p>{event.title}</p>
-        <p>{`${startTime.getHours()}:${startTime
-          .getMinutes()
-          .toString()
-          .padStart(2, "0")} - ${endTime.getHours()}:${endTime
-          .getMinutes()
-          .toString()
-          .padStart(2, "0")}`}</p>
+        <p>
+          {dayjs(event.start).format("HH:mm")} -{" "}
+          {dayjs(event.end).format("HH:mm")}
+        </p>
       </div>
     </div>
   );

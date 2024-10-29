@@ -20,7 +20,7 @@ const HeaderComponent = () => {
         <div className="flex justify-center items-center">
           <img src={icon} alt="Icon" className="w-10 h-10" />
           <h1 className="text-3xl p-3 font-bold text-center text-white">
-            MY CALENDAR
+            BÓC LỊCH ONLINE
           </h1>
         </div>
       </Header>

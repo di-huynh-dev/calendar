@@ -1,27 +1,22 @@
-// WeekView.tsx
-import React from "react";
-import { Dayjs } from "dayjs";
+import dayjs from "dayjs";
+import { useCalendarStore } from "../store/useCalendarStore";
+import { format, startOfWeek, addDays, isSameDay } from "date-fns";
 
-interface WeekViewProps {
-  startOfWeek: Dayjs;
-}
+const WeekView = () => {
+  const { events, currentDate } = useCalendarStore();
+  const weekStart = startOfWeek(dayjs(currentDate).toDate(), {
+    weekStartsOn: 1,
+  });
 
-const WeekView: React.FC<WeekViewProps> = ({ startOfWeek }) => {
-  const daysInWeek = Array.from({ length: 7 }, (_, index) =>
-    startOfWeek.add(index, "day")
-  );
+  const hours = Array.from({ length: 24 }, (_, i) => i);
 
   return (
-    <div className="week-view grid grid-cols-7 gap-4">
-      {daysInWeek.map((day) => (
-        <div key={day.format("YYYY-MM-DD")} className="border p-2">
-          <h3 className="font-bold">{day.format("dddd, MMMM D")}</h3>
-          {/* Render các sự kiện trong ngày */}
-          <div>
-            {/* Các sự kiện của ngày hiện tại có thể được hiển thị ở đây */}
-          </div>
-        </div>
-      ))}
+    <div>
+      {Array.from({ length: 7 }).map((_, dayIndex) => {
+        const day = addDays(weekStart, dayIndex);
+
+        return <div key={dayIndex} className="border-r"></div>;
+      })}
     </div>
   );
 };
