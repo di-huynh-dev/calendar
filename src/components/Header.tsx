@@ -1,4 +1,4 @@
-import { Button, DatePicker, Input, Layout, Radio } from "antd";
+import { Button, DatePicker, Input, Layout, Radio, Select } from "antd";
 import { useCalendarStore } from "../store/useCalendarStore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Header } from "antd/es/layout/layout";
@@ -85,7 +85,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                 }
               }}
             />
-            <Radio.Group
+            {/* <Radio.Group
               options={[
                 { label: "Ngày", value: "day" },
                 { label: "Tuần", value: "week" },
@@ -95,7 +95,17 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
               onChange={(e) => setViewMode(e.target.value)}
               value={viewMode}
               optionType="button"
-            />
+            /> */}
+            <Select
+              className="w-[120px]"
+              value={viewMode}
+              onChange={(value) => setViewMode(value)}
+            >
+              <Select.Option value="day">Ngày</Select.Option>
+              <Select.Option value="week">Tuần</Select.Option>
+              <Select.Option value="month">Tháng</Select.Option>
+              <Select.Option value="year">Năm</Select.Option>
+            </Select>
           </div>
           <div className="flex gap-2">
             <Input.Search
@@ -182,12 +192,14 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                         </div>
                       ))}
                       {dayAllDayEvents.map((event) => (
-                        <div
-                          key={event.id}
-                          className="p-1 border border-dashed rounded-lg bg-blue-100 text-blue-500 text-xs"
+                        <button
+                          className="p-2 border border-dashed rounded-lg bg-blue-100"
+                          onClick={() => onEventClick(event)}
                         >
-                          {event.title}
-                        </div>
+                          <span className="text-blue-500">
+                            {event.title ? event.title : "(Không có tiêu đề)"}
+                          </span>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -209,7 +221,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                       onClick={() => onEventClick(event)}
                     >
                       <span className="text-blue-500">
-                        {event.title} ({dayjs(event.start).format("DD/MM")})
+                        {event.title ? event.title : "(Không có tiêu đề)"}
                       </span>
                     </button>
                   ))}

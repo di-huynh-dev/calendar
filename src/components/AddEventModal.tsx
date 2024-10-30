@@ -67,6 +67,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         participants: selectedEvent.participants,
         description: selectedEvent.description,
         colorTag: selectedEvent.colorTag,
+        allDay: selectedEvent.allDay,
       });
     } else {
       form.resetFields();
@@ -187,15 +188,6 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
                   </Tooltip>
                 ) : (
                   <>
-                    <Tooltip title="Chỉnh sửa sự kiện">
-                      <button
-                        onClick={() => {
-                          setIsEditing(true);
-                        }}
-                      >
-                        <Pencil size={16} />
-                      </button>
-                    </Tooltip>
                     <Tooltip title="Xóa sự kiện">
                       <Popconfirm
                         title="Xác nhận Xóa sự kiện"
@@ -233,7 +225,6 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         requiredMark={false}
         autoComplete="off"
         layout="horizontal"
-        disabled={!isEditing}
         className="max-h-[calc(100vh-200px)] overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 scrollbar-w-1]"
       >
         <Form.Item
@@ -457,7 +448,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
                       },
                     });
                   }}
-                  disabled={!selectedCity || !isEditing}
+                  disabled={!selectedCity}
                 >
                   {Object.values(districts)
                     .filter((district) => district.parent_code === selectedCity)
@@ -491,7 +482,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
                       },
                     });
                   }}
-                  disabled={!selectedDistrict || !isEditing}
+                  disabled={!selectedDistrict}
                 >
                   {Object.values(wards)
                     .filter((ward) => ward.parent_code === selectedDistrict)
@@ -504,23 +495,29 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
               </Form.Item>
             </Col>
             <Form.Item
-              className={`w-full ml-6 border-b-[1px] ${
+              className={`w-full border-b-[1px] ${
                 isEditing ? " hover:border-blue-500" : ""
               }`}
               name={["location", "address"]}
             >
-              <Input placeholder="Địa chỉ cụ thể" bordered={false} />
+              <Input
+                placeholder="Địa chỉ cụ thể"
+                bordered={false}
+                disabled={!selectedDistrict || !selectedCity}
+              />
             </Form.Item>
           </Row>
         </Form.Item>
         <Form.Item label={<Palette size={14} />} name="colorTag">
-          <ColorPicker
-            allowClear
-            showText
-            onChange={(color) => {
-              form.setFieldsValue({ colorTag: color.toHexString() });
-            }}
-          />
+          <Tooltip title="Màu sắc cho tag">
+            <ColorPicker
+              allowClear
+              showText
+              onChange={(color) => {
+                form.setFieldsValue({ colorTag: color.toHexString() });
+              }}
+            />
+          </Tooltip>
         </Form.Item>
         <Form.Item label={<ListOrdered size={14} />} name="description">
           <Col span={24}>
@@ -531,7 +528,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
               modules={modulesQuill}
               formats={formatsQuill}
               value={form.getFieldValue("description")}
-              readOnly={!isEditing}
+              style={{ maxHeight: "200px", overflowY: "auto" }}
             />
             <style>
               {`
@@ -548,7 +545,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
               width: 100%;
               height: 150px;
               }
-              .ql-tooltip.ql-editing{
+              .ql-tooltip.ql-editing {
               margin-top: -30px;
               left: 60px !important;
               }
@@ -557,11 +554,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
           </Col>
         </Form.Item>
         <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            className="w-full mt-8 shadow-lg"
-          >
+          <Button type="primary" htmlType="submit" className="w-full mt-8">
             {isEditMode ? "Cập nhật sự kiện" : "Thêm sự kiện"}
           </Button>
         </Form.Item>

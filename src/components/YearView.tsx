@@ -59,13 +59,10 @@ const YearView: React.FC<YearViewProps> = React.memo(
                               {event.title ? event.title : "(Không có tiêu đề)"}{" "}
                               (
                               {"start" in event
-                                ? dayjs(event.start).format("HH:mm")
+                                ? dayjs(event.start).format("HH:mm A")
                                 : "Cả ngày"}{" "}
                               {"start" in event && "end" in event
-                                ? `- ${dayjs(event.end).format("HH:mm")}`
-                                : ""}{" "}
-                              {"start" in event
-                                ? dayjs(event.start).format("A")
+                                ? `- ${dayjs(event.end).format("HH:mm A")}`
                                 : ""}
                               )
                             </p>

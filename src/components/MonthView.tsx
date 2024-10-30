@@ -34,9 +34,8 @@ const MonthView: React.FC<MonthViewProps> = ({
               <div>
                 <p>
                   {event.title ? event.title : "(Không có tiêu đề)"} (
-                  {dayjs(event.start).format("HH:mm")} -{" "}
-                  {dayjs(event.end).format("HH:mm")}{" "}
-                  {dayjs(event.start).format("A")})
+                  {dayjs(event.start).format("hh:mm A")} -{" "}
+                  {dayjs(event.end).format("hh:mm A")} )
                 </p>
               </div>
             }
@@ -58,9 +57,8 @@ const MonthView: React.FC<MonthViewProps> = ({
               <div className="flex flex-col">
                 <span>{!event.title ? "(Không có tiêu đề)" : event.title}</span>
                 <span className="text-xs text-gray-500">
-                  {dayjs(event.start).format("HH:mm")} -{" "}
-                  {dayjs(event.end).format("HH:mm")}{" "}
-                  {dayjs(event.start).format("A")}
+                  {dayjs(event.start).format("hh:mm A")} -{" "}
+                  {dayjs(event.end).format("hh:mm A")}
                 </span>
               </div>
             </li>

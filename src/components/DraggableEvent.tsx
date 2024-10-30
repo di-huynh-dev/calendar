@@ -149,7 +149,11 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
                 {dayjs(event.start).format("HH:mm")} -{" "}
                 {dayjs(event.end).format("HH:mm")}
               </p>
-              <p>{event.googleMeetLink && <Video size={16} />}</p>
+              <p>
+                {event.googleMeetLink && viewMode !== "week" && (
+                  <Video size={16} />
+                )}
+              </p>
             </div>
             <p>{event.title ? event.title : "(Không có tiêu đề)"}</p>
           </>
