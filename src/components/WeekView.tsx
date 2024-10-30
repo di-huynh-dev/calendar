@@ -62,7 +62,7 @@ const WeekView = () => {
             const eventPositions = calculateEventPositions(dayEvents);
 
             return (
-              <div key={dayIndex} className="border-r p-1 relative">
+              <div key={dayIndex} className="border-r  relative">
                 <div className="grid grid-rows-24 h-full">
                   {Array.from({ length: 24 }).map((_, hourIndex) => {
                     return (

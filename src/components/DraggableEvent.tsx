@@ -40,7 +40,17 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
       const updatedStartTime = dayjs(event.start)
         .add(minutesToAdd, "minute")
         .toDate();
-      setNewStartTime(roundToNearestQuarterHour(updatedStartTime));
+
+      // Set boundaries for the draggable area: 12:00 AM to 11:59 PM
+      const minTime = new Date(event.start);
+      minTime.setHours(0, 0, 0, 0); // Start of the day
+      const maxTime = new Date(event.start);
+      maxTime.setHours(23, 59, 59, 999); // End of the day
+
+      // Only update the time if it's within the allowed range
+      if (updatedStartTime >= minTime && updatedStartTime <= maxTime) {
+        setNewStartTime(roundToNearestQuarterHour(updatedStartTime));
+      }
     }
   }, [transform, event.start]);
 
@@ -103,7 +113,7 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
             <p>{event.googleMeetLink && <Video size={16} />}</p>
           </div>
         )}
-        <p>{event.title}</p>
+        <p>{event.title ? event.title : "(Không có tiêu đề)"}</p>
       </div>
     </div>
   );
@@ -111,6 +121,7 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
   return viewMode === "week" ? (
     <Tooltip
       placement="left"
+      color="#3b82f6"
       title={
         <>
           <div className="flex gap-2 items-center">
@@ -123,7 +134,7 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
             </p>
             <p>{event.googleMeetLink && <Video size={16} />}</p>
           </div>
-          <p>{event.title}</p>
+          <p>{event.title ? event.title : "(Không có tiêu đề)"}</p>
         </>
       }
     >

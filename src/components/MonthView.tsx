@@ -83,6 +83,7 @@ const MonthView: React.FC<MonthViewProps> = ({
         fullscreen
         headerRender={() => null}
         onSelect={onDateSelect}
+        className="m-10"
       />
     </div>
   );

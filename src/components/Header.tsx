@@ -1,10 +1,11 @@
-import { Button, DatePicker, Layout, Radio } from "antd";
+import { Button, DatePicker, Input, Layout, Radio, Select } from "antd";
 import { useCalendarStore } from "../store/useCalendarStore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Header } from "antd/es/layout/layout";
 import icon from "../assets/icon-calendar.jpg";
 import dayjs from "dayjs";
 import { format, addDays, startOfWeek, isSameDay } from "date-fns";
+import toast from "react-hot-toast";
 
 const HeaderComponent = () => {
   const {
@@ -59,18 +60,7 @@ const HeaderComponent = () => {
               <ChevronRight />
             </Button>
           </div>
-          <div>
-            {/* <span className="text-xl font-semibold">
-              {currentDate
-                ? dayjs(currentDate).format(
-                    viewMode === "year"
-                      ? "YYYY"
-                      : viewMode === "month"
-                      ? "MMMM YYYY"
-                      : "DD/MM/YYYY"
-                  )
-                : ""}
-            </span> */}
+          <div className="flex gap-2">
             <DatePicker
               value={
                 dayjs.isDayjs(currentDate) ? currentDate : dayjs(currentDate)
@@ -88,8 +78,6 @@ const HeaderComponent = () => {
                 }
               }}
             />
-          </div>
-          <div className="flex gap-2">
             <Radio.Group
               options={[
                 { label: "Ngày", value: "day" },
@@ -100,6 +88,23 @@ const HeaderComponent = () => {
               onChange={(e) => setViewMode(e.target.value)}
               value={viewMode}
               optionType="button"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Input.Search
+              placeholder="Tìm kiếm sự kiện"
+              onSearch={(value) => {
+                const searchResults = events.filter((event) =>
+                  event.title?.toLowerCase().includes(value.toLowerCase())
+                );
+                if (searchResults.length > 0) {
+                  setCurrentDate(dayjs(searchResults[0].start));
+                } else {
+                  toast.error("Không có sự kiện nào được tìm thấy");
+                }
+              }}
+              style={{ width: 200 }}
+              allowClear
             />
           </div>
         </div>
