@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import dayjs from "dayjs";
+import { Video } from "lucide-react";
+import { useCalendarStore } from "../store/useCalendarStore";
+import { Tooltip } from "antd";
 
 interface Event {
   id: string;
@@ -10,6 +13,7 @@ interface Event {
   width: string;
   left: string;
   colorTag: string;
+  googleMeetLink: string;
 }
 
 interface DraggableEventProps {
@@ -26,7 +30,7 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: event.id,
   });
-
+  const { viewMode } = useCalendarStore();
   const [newStartTime, setNewStartTime] = useState<Date>(event.start);
 
   useEffect(() => {
@@ -58,7 +62,7 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
     date.setMilliseconds(0);
     return date;
   };
-  return (
+  const eventContent = (
     <div
       ref={setNodeRef}
       {...attributes}
@@ -72,12 +76,12 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
         left: event.left,
         transform: transform ? `translateY(${transform.y}px)` : undefined,
         position: "absolute",
-        color: "white",
+        color: "#fcfdff",
         textAlign: "left",
         borderRadius: "0.75rem",
         padding: "0.5rem",
-        borderLeft: "2px solid white",
-        backgroundColor: event.colorTag ? event.colorTag : "#3b82f6",
+        borderLeft: "2px solid #ffffff",
+        backgroundColor: event.colorTag ? event.colorTag : "#79a7f3",
       }}
     >
       <div
@@ -87,15 +91,46 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
             : ""
         }`}
       >
+        {viewMode !== "week" && (
+          <div className="flex gap-2 items-center">
+            <p>
+              {dayjs(newStartTime).format("HH:mm")} -{" "}
+              {dayjs(newStartTime)
+                .add(dayjs(event.end).diff(dayjs(event.start)), "millisecond")
+                .format("HH:mm")}{" "}
+              {dayjs(event.start).format("A")}
+            </p>
+            <p>{event.googleMeetLink && <Video size={16} />}</p>
+          </div>
+        )}
         <p>{event.title}</p>
-        <p>
-          {dayjs(newStartTime).format("HH:mm")} -{" "}
-          {dayjs(newStartTime)
-            .add(dayjs(event.end).diff(dayjs(event.start)), "millisecond")
-            .format("HH:mm")}
-        </p>
       </div>
     </div>
+  );
+
+  return viewMode === "week" ? (
+    <Tooltip
+      placement="left"
+      title={
+        <>
+          <div className="flex gap-2 items-center">
+            <p>
+              {dayjs(newStartTime).format("HH:mm")} -{" "}
+              {dayjs(newStartTime)
+                .add(dayjs(event.end).diff(dayjs(event.start)), "millisecond")
+                .format("HH:mm")}{" "}
+              {dayjs(event.start).format("A")}
+            </p>
+            <p>{event.googleMeetLink && <Video size={16} />}</p>
+          </div>
+          <p>{event.title}</p>
+        </>
+      }
+    >
+      {eventContent}
+    </Tooltip>
+  ) : (
+    eventContent
   );
 };
 

@@ -239,8 +239,8 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
       >
         <Form.Item
           name="title"
-          className={`w-full ml-6 border-b-2 ${
-            isEditing ? " hover:border-orange-500" : ""
+          className={`w-full ml-6 border-b-[1px] ${
+            isEditing ? " hover:border-blue-500" : ""
           }`}
           rules={[{ max: 100, message: "Tiêu đề qúa dài" }]}
         >
@@ -390,8 +390,8 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         >
           <Form.Item
             name="googleMeetLink"
-            className={`w-full border-b-2 ${
-              isEditing ? "hover:border-orange-500" : ""
+            className={`w-full border-b-[1px] ${
+              isEditing ? "hover:border-blue-500" : ""
             }`}
           >
             <Input placeholder="Thêm liên kết Google Meet" bordered={false} />
@@ -499,8 +499,8 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
               </Form.Item>
             </Col>
             <Form.Item
-              className={`w-full ml-6 border-b-2 ${
-                isEditing ? " hover:border-orange-500" : ""
+              className={`w-full ml-6 border-b-[1px] ${
+                isEditing ? " hover:border-blue-500" : ""
               }`}
               name={["location", "address"]}
             >

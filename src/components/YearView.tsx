@@ -34,10 +34,7 @@ const YearView: React.FC<YearViewProps> = React.memo(
       const daysInMonth = startOfMonth.daysInMonth();
 
       return (
-        <div
-          key={monthIndex}
-          className="p-2 border border-orange-500 rounded-lg"
-        >
+        <div key={monthIndex} className="p-2 border border-blue-500 rounded-lg">
           <h3 className="text-center font-bold mb-2">
             {startOfMonth.format("MMMM")}
           </h3>
@@ -79,17 +76,17 @@ const YearView: React.FC<YearViewProps> = React.memo(
                       )}
                     </>
                   }
-                  color="#fc7c33"
+                  color="#3b82f6"
                 >
                   <div
                     key={dayIndex}
-                    className="text-center text-sm p-1 cursor-pointer hover:bg-orange-100 rounded"
+                    className="text-center text-sm p-1 cursor-pointer hover:bg-blue-100 rounded"
                     onClick={() => onDateSelect(currentDate.toDate())}
                   >
                     <span
                       className={`inline-block ${
                         currentDate.isSame(dayjs(), "day")
-                          ? "text-orange-500 font-bold"
+                          ? "text-blue-500 font-bold"
                           : ""
                       }`}
                     >

@@ -28,7 +28,7 @@ const MonthView: React.FC<MonthViewProps> = ({
       <ul>
         {dailyEvents.map((event) => (
           <Tooltip
-            color="#fc7c33"
+            color="#3391fc"
             key={event.id}
             title={
               <div>

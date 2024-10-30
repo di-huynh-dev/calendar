@@ -1,4 +1,4 @@
-import { Button, DatePicker, Layout, Select } from "antd";
+import { Button, DatePicker, Layout, Radio } from "antd";
 import { useCalendarStore } from "../store/useCalendarStore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Header } from "antd/es/layout/layout";
@@ -33,7 +33,7 @@ const HeaderComponent = () => {
 
   return (
     <Layout>
-      <Header className=" fixed top-0 left-0 right-0 z-10 transition-opacity duration-300 bg-orange-400">
+      <Header className=" fixed top-0 left-0 right-0 z-10 transition-opacity duration-300 bg-[#142433]">
         <div className="flex justify-center items-center">
           <img src={icon} alt="Icon" className="w-10 h-10" />
           <h1 className="text-3xl p-3 font-bold text-center text-white">
@@ -43,24 +43,24 @@ const HeaderComponent = () => {
       </Header>
       <div className="fixed top-16 left-0 right-0 z-10 bg-white shadow-lg">
         <div className="flex justify-between items-center mx-10 p-3">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <Button className="rounded-lg bg-slate-100" onClick={goBackward}>
+              <ChevronLeft />
+            </Button>
             <Button
-              className="rounded-full"
+              className="rounded-lg bg-slate-100"
               onClick={() =>
                 useCalendarStore.setState({ currentDate: dayjs() })
               }
             >
               Hôm nay
             </Button>
-            <Button className="rounded-full" onClick={goBackward}>
-              <ChevronLeft />
-            </Button>
-            <Button className="rounded-full" onClick={goForward}>
+            <Button className="rounded-lg bg-slate-100" onClick={goForward}>
               <ChevronRight />
             </Button>
           </div>
           <div>
-            <span className="text-lg font-semibold">
+            {/* <span className="text-xl font-semibold">
               {currentDate
                 ? dayjs(currentDate).format(
                     viewMode === "year"
@@ -70,9 +70,7 @@ const HeaderComponent = () => {
                       : "DD/MM/YYYY"
                   )
                 : ""}
-            </span>
-          </div>
-          <div className="flex gap-2">
+            </span> */}
             <DatePicker
               value={
                 dayjs.isDayjs(currentDate) ? currentDate : dayjs(currentDate)
@@ -90,16 +88,19 @@ const HeaderComponent = () => {
                 }
               }}
             />
-            <Select
-              className="w-[120px]"
+          </div>
+          <div className="flex gap-2">
+            <Radio.Group
+              options={[
+                { label: "Ngày", value: "day" },
+                { label: "Tuần", value: "week" },
+                { label: "Tháng", value: "month" },
+                { label: "Năm", value: "year" },
+              ]}
+              onChange={(e) => setViewMode(e.target.value)}
               value={viewMode}
-              onChange={(value) => setViewMode(value)}
-            >
-              <Select.Option value="day">Ngày</Select.Option>
-              <Select.Option value="week">Tuần</Select.Option>
-              <Select.Option value="month">Tháng</Select.Option>
-              <Select.Option value="year">Năm</Select.Option>
-            </Select>
+              optionType="button"
+            />
           </div>
         </div>
 
@@ -113,7 +114,7 @@ const HeaderComponent = () => {
                 <div
                   className={`text-lg ${
                     isSameDay(dayjs(currentDate).toDate(), today)
-                      ? "text-orange-600"
+                      ? "text-blue-600"
                       : ""
                   }`}
                 >
@@ -123,7 +124,7 @@ const HeaderComponent = () => {
                 <div
                   className={`text-2xl ${
                     isSameDay(dayjs(currentDate).toDate(), today)
-                      ? "bg-orange-500 text-white rounded-full w-10 h-10 mx-auto flex items-center justify-center"
+                      ? "bg-blue-600 text-white rounded-full w-10 h-10 mx-auto flex items-center justify-center"
                       : "w-10 h-10 mx-auto"
                   }`}
                 >
@@ -137,7 +138,7 @@ const HeaderComponent = () => {
                   {/* Hiển thị thứ */}
                   <div
                     className={`text-lg ${
-                      isSameDay(day, today) ? "text-orange-600 font-bold" : ""
+                      isSameDay(day, today) ? "text-blue-600 font-bold" : ""
                     }`}
                   >
                     {format(day, "EEE")}
@@ -146,7 +147,7 @@ const HeaderComponent = () => {
                   <div
                     className={`text-2xl ${
                       isSameDay(day, today)
-                        ? "bg-orange-500 text-white rounded-full w-10 h-10 mx-auto flex items-center justify-center"
+                        ? "bg-blue-500 text-white rounded-full w-10 h-10 mx-auto flex items-center justify-center"
                         : "w-10 h-10 mx-auto"
                     }`}
                   >
@@ -160,15 +161,15 @@ const HeaderComponent = () => {
               <div className="mx-10">
                 <div className="flex gap-2">
                   {currentHolidays.map((holiday) => (
-                    <div className="p-2 border border-dashed rounded-lg bg-orange-100">
-                      <span className="text-orange-500">
+                    <div className="p-2 border border-dashed rounded-lg bg-green-100">
+                      <span className="text-green-500">
                         {holiday.name} ({dayjs(holiday.date).format("DD/MM")})
                       </span>
                     </div>
                   ))}
                   {currentAllDayEvents.map((event) => (
-                    <div className="p-2 border border-dashed rounded-lg bg-green-100">
-                      <span className="text-green-500">
+                    <div className="p-2 border border-dashed rounded-lg bg-blue-100">
+                      <span className="text-blue-500">
                         {event.title} ({dayjs(event.start).format("DD/MM")})
                       </span>
                     </div>

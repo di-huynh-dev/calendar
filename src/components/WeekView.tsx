@@ -66,7 +66,12 @@ const WeekView = () => {
                 <div className="grid grid-rows-24 h-full">
                   {Array.from({ length: 24 }).map((_, hourIndex) => {
                     return (
-                      <div key={hourIndex} className="border-t h-20">
+                      <div
+                        key={hourIndex}
+                        className={`border-t h-20 ${
+                          isSameDay(currentDay, new Date()) ? "bg-blue-50" : ""
+                        }`}
+                      >
                         <div className="flex">
                           {eventPositions
                             .filter(
