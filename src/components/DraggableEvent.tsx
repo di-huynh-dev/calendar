@@ -143,13 +143,16 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
         }`}
       >
         {
-          <div className="flex gap-2 items-center">
-            <p>
-              {dayjs(event.start).format("HH:mm")} -{" "}
-              {dayjs(event.end).format("HH:mm")}
-            </p>
-            <p>{event.googleMeetLink && <Video size={16} />}</p>
-          </div>
+          <>
+            <div className="flex gap-2 items-center">
+              <p>
+                {dayjs(event.start).format("HH:mm")} -{" "}
+                {dayjs(event.end).format("HH:mm")}
+              </p>
+              <p>{event.googleMeetLink && <Video size={16} />}</p>
+            </div>
+            <p>{event.title ? event.title : "(Không có tiêu đề)"}</p>
+          </>
         }
       </div>
     </div>

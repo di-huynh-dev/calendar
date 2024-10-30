@@ -68,8 +68,8 @@ const WeekView: React.FC<WeekViewProps> = ({ onTimeClick, onEventClick }) => {
             const eventPositions = calculateEventPositions(dayEvents);
 
             return (
-              <div key={dayIndex} className="border-r relative">
-                <div className="grid grid-rows-24 h-full">
+              <div key={dayIndex} className="border-r ">
+                <div className="grid grid-rows-24 h-full relative">
                   {Array.from({ length: 24 }).map((_, hourIndex) => {
                     // Tạo thời gian cho khối giờ này
                     const hourTime = dayjs(currentDay)
