@@ -36,18 +36,24 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
   useEffect(() => {
     if (transform) {
       const offsetY = transform.y;
-      const minutesToAdd = Math.round(offsetY / 30) * 15;
+
+      // Define pixels per 15-minute interval (assuming 30px = 15 minutes for example)
+      const pixelsPer15Minutes = 20;
+
+      // Calculate minutes to add based on 15-minute intervals
+      const minutesToAdd = Math.round(offsetY / pixelsPer15Minutes) * 15;
+
+      // Calculate the new start time, rounded to the nearest 15 minutes
       const updatedStartTime = dayjs(event.start)
         .add(minutesToAdd, "minute")
         .toDate();
 
-      // Set boundaries for the draggable area: 12:00 AM to 11:59 PM
+      // Only update the time if within day boundaries
       const minTime = new Date(event.start);
-      minTime.setHours(0, 0, 0, 0); // Start of the day
+      minTime.setHours(0, 0, 0, 0);
       const maxTime = new Date(event.start);
-      maxTime.setHours(23, 59, 59, 999); // End of the day
+      maxTime.setHours(23, 59, 59, 999);
 
-      // Only update the time if it's within the allowed range
       if (updatedStartTime >= minTime && updatedStartTime <= maxTime) {
         setNewStartTime(roundToNearestQuarterHour(updatedStartTime));
       }
