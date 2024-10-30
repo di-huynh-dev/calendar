@@ -93,10 +93,7 @@ const WeekView: React.FC<WeekViewProps> = ({ onTimeClick, onEventClick }) => {
                                 dayjs(event.start).hour() === hourIndex
                             )
                             .map((event: any) => (
-                              <div
-                                key={event.id}
-                                onPointerUp={() => onEventClick(event)}
-                              >
+                              <div key={event.id}>
                                 <DraggableEvent
                                   event={event}
                                   style={{
@@ -104,19 +101,7 @@ const WeekView: React.FC<WeekViewProps> = ({ onTimeClick, onEventClick }) => {
                                     left: event.left,
                                     fontSize: "0.75rem",
                                   }}
-                                  onDrop={(newStartTime: Date) => {
-                                    const duration =
-                                      new Date(event.end).getTime() -
-                                      new Date(event.start).getTime();
-                                    const newEndTime = new Date(
-                                      newStartTime.getTime() + duration
-                                    );
-                                    updateEventTime(
-                                      event.id,
-                                      newStartTime,
-                                      newEndTime
-                                    );
-                                  }}
+                                  handleClick={onEventClick}
                                 />
                               </div>
                             ))}

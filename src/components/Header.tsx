@@ -7,7 +7,11 @@ import dayjs from "dayjs";
 import { format, addDays, startOfWeek, isSameDay } from "date-fns";
 import toast from "react-hot-toast";
 
-const HeaderComponent = () => {
+interface HeaderComponentProps {
+  onEventClick: (event: any) => void;
+}
+
+const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
   const {
     viewMode,
     currentDate,
@@ -18,10 +22,13 @@ const HeaderComponent = () => {
     holidays,
     events,
   } = useCalendarStore();
+
   const today = new Date();
+
   const startDate = startOfWeek(dayjs(currentDate).toDate(), {
     weekStartsOn: 0,
   });
+
   const days = Array.from({ length: 7 }, (_, i) => addDays(startDate, i));
 
   const currentHolidays = holidays.filter((holiday) =>
@@ -34,7 +41,7 @@ const HeaderComponent = () => {
 
   return (
     <Layout>
-      <Header className=" fixed top-0 left-0 right-0 z-10 transition-opacity duration-300 bg-[#142433]">
+      <Header className="fixed top-0 left-0 right-0 z-10 transition-opacity duration-300 bg-[#142433]">
         <div className="flex justify-center items-center">
           <img src={icon} alt="Icon" className="w-10 h-10" />
           <h1 className="text-3xl p-3 font-bold text-center text-white">
@@ -109,13 +116,11 @@ const HeaderComponent = () => {
           </div>
         </div>
 
-        {/* Calendar header */}
         {(viewMode === "week" || viewMode === "day") && (
           <div className="grid grid-cols-8 gap-2 text-center mb-2 items-center border-t-2 py-2">
             <div className="text-sm text-gray-600 border-r-2">GMT+07</div>
             {viewMode === "day" && (
               <div>
-                {/* Hiển thị thứ */}
                 <div
                   className={`text-lg ${
                     isSameDay(dayjs(currentDate).toDate(), today)
@@ -125,7 +130,6 @@ const HeaderComponent = () => {
                 >
                   {format(dayjs(currentDate).toDate(), "EEE")}
                 </div>
-                {/* Hiển thị ngày */}
                 <div
                   className={`text-2xl ${
                     isSameDay(dayjs(currentDate).toDate(), today)
@@ -138,46 +142,76 @@ const HeaderComponent = () => {
               </div>
             )}
             {viewMode === "week" &&
-              days.map((day, i) => (
-                <div key={i} className="text-center">
-                  {/* Hiển thị thứ */}
-                  <div
-                    className={`text-lg ${
-                      isSameDay(day, today) ? "text-blue-600 font-bold" : ""
-                    }`}
-                  >
-                    {format(day, "EEE")}
-                  </div>
-                  {/* Hiển thị ngày */}
-                  <div
-                    className={`text-2xl ${
-                      isSameDay(day, today)
-                        ? "bg-blue-500 text-white rounded-full w-10 h-10 mx-auto flex items-center justify-center"
-                        : "w-10 h-10 mx-auto"
-                    }`}
-                  >
-                    {format(day, "d")}
-                  </div>
-                </div>
-              ))}
+              days.map((day, i) => {
+                const dayHolidays = holidays.filter((holiday) =>
+                  isSameDay(day, new Date(holiday.date))
+                );
+                const dayAllDayEvents = events.filter(
+                  (event) =>
+                    isSameDay(day, new Date(event.start)) && event.allDay
+                );
 
-            {/* Display Holidays and All-Day Events */}
+                return (
+                  <div key={i} className="text-center">
+                    <div
+                      className={`text-lg ${
+                        isSameDay(day, today) ? "text-blue-600 font-bold" : ""
+                      }`}
+                    >
+                      {format(day, "EEE")}
+                    </div>
+                    <div
+                      className={`text-2xl ${
+                        isSameDay(day, today)
+                          ? "bg-blue-500 text-white rounded-full w-10 h-10 mx-auto flex items-center justify-center"
+                          : "w-10 h-10 mx-auto"
+                      }`}
+                    >
+                      {format(day, "d")}
+                    </div>
+                    <div
+                      className="mt-2 space-y-1 overflow-y-auto"
+                      style={{ maxHeight: "48px" }}
+                    >
+                      {dayHolidays.map((holiday) => (
+                        <div
+                          key={holiday.name}
+                          className="p-1 border border-dashed rounded-lg bg-green-100 text-green-500 text-xs"
+                        >
+                          {holiday.name}
+                        </div>
+                      ))}
+                      {dayAllDayEvents.map((event) => (
+                        <div
+                          key={event.id}
+                          className="p-1 border border-dashed rounded-lg bg-blue-100 text-blue-500 text-xs"
+                        >
+                          {event.title}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             {viewMode === "day" && (
               <div className="mx-10">
                 <div className="flex gap-2">
                   {currentHolidays.map((holiday) => (
-                    <div className="p-2 border border-dashed rounded-lg bg-green-100">
+                    <button className="p-2 border border-dashed rounded-lg bg-green-100">
                       <span className="text-green-500">
                         {holiday.name} ({dayjs(holiday.date).format("DD/MM")})
                       </span>
-                    </div>
+                    </button>
                   ))}
                   {currentAllDayEvents.map((event) => (
-                    <div className="p-2 border border-dashed rounded-lg bg-blue-100">
+                    <button
+                      className="p-2 border border-dashed rounded-lg bg-blue-100"
+                      onClick={() => onEventClick(event)}
+                    >
                       <span className="text-blue-500">
                         {event.title} ({dayjs(event.start).format("DD/MM")})
                       </span>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>

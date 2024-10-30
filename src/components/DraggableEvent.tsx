@@ -18,26 +18,39 @@ interface Event {
 
 interface DraggableEventProps {
   event: Event;
-  onDrop: (newStartTime: Date) => void;
   style?: React.CSSProperties;
+  handleClick: (event: Event) => void; // Updated type for clarity
 }
 
 const DraggableEvent: React.FC<DraggableEventProps> = ({
   event,
   style,
-  onDrop,
+  handleClick,
 }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: event.id,
   });
-  const { viewMode } = useCalendarStore();
+  const { viewMode, updateEventTime } = useCalendarStore();
   const [newStartTime, setNewStartTime] = useState<Date>(event.start);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Function to round to the nearest quarter hour
+  const roundToNearestQuarterHour = (date: Date): Date => {
+    const minutes = date.getMinutes();
+    const roundedMinutes = Math.round(minutes / 15) * 15;
+    date.setMinutes(roundedMinutes);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    return date;
+  };
 
   useEffect(() => {
     if (transform) {
+      setIsDragging(true);
+
       const offsetY = transform.y;
 
-      // Define pixels per 15-minute interval (assuming 30px = 15 minutes for example)
+      // Define pixels per 15-minute interval
       const pixelsPer15Minutes = 20;
 
       // Calculate minutes to add based on 15-minute intervals
@@ -48,42 +61,64 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
         .add(minutesToAdd, "minute")
         .toDate();
 
-      // Only update the time if within day boundaries
+      // Ensure updatedStartTime stays within bounds
       const minTime = new Date(event.start);
       minTime.setHours(0, 0, 0, 0);
       const maxTime = new Date(event.start);
       maxTime.setHours(23, 59, 59, 999);
 
       if (updatedStartTime >= minTime && updatedStartTime <= maxTime) {
-        setNewStartTime(roundToNearestQuarterHour(updatedStartTime));
+        setNewStartTime(updatedStartTime);
       }
     }
   }, [transform, event.start]);
 
-  const handleDrop = () => {
-    onDrop(newStartTime);
-  };
-
   const startTime = new Date(event.start);
   const endTime = new Date(event.end);
 
+  // Return null if times are invalid
   if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
     return null;
   }
-  const roundToNearestQuarterHour = (date: Date): Date => {
-    const minutes = date.getMinutes();
-    const roundedMinutes = Math.round(minutes / 15) * 15;
-    date.setMinutes(roundedMinutes);
-    date.setSeconds(0);
-    date.setMilliseconds(0);
-    return date;
+
+  const handleDrop = () => {
+    setIsDragging(false);
+
+    // // Round to the nearest quarter hour for the dropped time
+    const roundedNewStartTime = roundToNearestQuarterHour(newStartTime);
+
+    // // Calculate the duration based on the original event times
+    const duration = endTime.getTime() - startTime.getTime();
+    const newEndTime = new Date(roundedNewStartTime.getTime() + duration);
+
+    // // Update the event with new times
+    updateEventTime(event.id, roundedNewStartTime, newEndTime);
   };
+
+  const handleClickEvent = () => {
+    if (!isDragging) {
+      handleClick(event);
+    }
+  };
+
+  const calculatePositionFromTime = (time: Date): number => {
+    const hours = time.getHours();
+    const minutes = time.getMinutes();
+    return ((hours * 60 + minutes) / (24 * 60)) * 100;
+  };
+
+  const calculateEventHeight = (start: Date, end: Date): number => {
+    const duration = (end.getTime() - start.getTime()) / (60 * 60 * 1000);
+    return (duration / 24) * 100;
+  };
+
   const eventContent = (
     <div
       ref={setNodeRef}
       {...attributes}
       {...listeners}
       onPointerUp={handleDrop}
+      onClick={handleClickEvent}
       style={{
         ...style,
         top: `${calculatePositionFromTime(startTime)}%`,
@@ -107,19 +142,15 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
             : ""
         }`}
       >
-        {viewMode !== "week" && (
+        {
           <div className="flex gap-2 items-center">
             <p>
-              {dayjs(newStartTime).format("HH:mm")} -{" "}
-              {dayjs(newStartTime)
-                .add(dayjs(event.end).diff(dayjs(event.start)), "millisecond")
-                .format("HH:mm")}{" "}
-              {dayjs(event.start).format("A")}
+              {dayjs(event.start).format("HH:mm")} -{" "}
+              {dayjs(event.end).format("HH:mm")}
             </p>
             <p>{event.googleMeetLink && <Video size={16} />}</p>
           </div>
-        )}
-        <p>{event.title ? event.title : "(Không có tiêu đề)"}</p>
+        }
       </div>
     </div>
   );
@@ -132,11 +163,10 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
         <>
           <div className="flex gap-2 items-center">
             <p>
-              {dayjs(newStartTime).format("HH:mm")} -{" "}
-              {dayjs(newStartTime)
-                .add(dayjs(event.end).diff(dayjs(event.start)), "millisecond")
-                .format("HH:mm")}{" "}
-              {dayjs(event.start).format("A")}
+              {dayjs(event.start).format("HH:mm")} -{" "}
+              {dayjs(event.start)
+                .add(endTime.getTime() - startTime.getTime(), "millisecond")
+                .format("HH:mm")}
             </p>
             <p>{event.googleMeetLink && <Video size={16} />}</p>
           </div>
@@ -149,17 +179,6 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({
   ) : (
     eventContent
   );
-};
-
-const calculatePositionFromTime = (time: Date): number => {
-  const hours = time.getHours();
-  const minutes = time.getMinutes();
-  return ((hours * 60 + minutes) / (24 * 60)) * 100;
-};
-
-const calculateEventHeight = (start: Date, end: Date): number => {
-  const duration = (end.getTime() - start.getTime()) / (60 * 60 * 1000);
-  return (duration / 24) * 100;
 };
 
 export default DraggableEvent;

@@ -17,7 +17,7 @@ const DayView: React.FC<DayViewProps> = ({
   onTimeClick,
   onEventClick,
 }) => {
-  const { events, updateEventTime } = useCalendarStore();
+  const { events } = useCalendarStore();
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
 
   useEffect(() => {
@@ -80,22 +80,14 @@ const DayView: React.FC<DayViewProps> = ({
         <div className="flex">
           {eventPositions.map((event: any) => (
             <>
-              <div key={event.id} onPointerUp={() => onEventClick(event)}>
+              <div key={event.id}>
                 <DraggableEvent
                   key={event.id}
                   event={event}
+                  handleClick={onEventClick}
                   style={{
                     width: event.width,
                     left: event.left,
-                  }}
-                  onDrop={(newStartTime: Date) => {
-                    const duration =
-                      new Date(event.end).getTime() -
-                      new Date(event.start).getTime();
-                    const newEndTime = new Date(
-                      newStartTime.getTime() + duration
-                    );
-                    updateEventTime(event.id, newStartTime, newEndTime);
                   }}
                 />
               </div>

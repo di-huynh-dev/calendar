@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { format, setHours } from "date-fns";
 import dayjs from "dayjs";
@@ -50,10 +49,10 @@ const Calendar: React.FC = () => {
   return (
     <div
       className={`${
-        viewMode === "day" || viewMode === "week" ? "mt-60" : "mt-32"
+        viewMode === "day" ? "mt-60" : viewMode === "week" ? "mt-72" : "mt-32"
       }`}
     >
-      <HeaderComponent />
+      <HeaderComponent onEventClick={handleEventClick} />
 
       {/* Calendar Grid */}
       <div
@@ -70,7 +69,7 @@ const Calendar: React.FC = () => {
                 key={hour}
                 className="h-20 border-b text-sm text-center text-gray-500"
               >
-                {format(setHours(new Date(), hour), "ha")}
+                {format(setHours(new Date(), hour), "HH:00")}
               </div>
             ))}
           </div>
