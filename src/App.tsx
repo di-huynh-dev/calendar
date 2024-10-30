@@ -83,6 +83,12 @@ const Calendar: React.FC = () => {
             onEventClick={handleEventClick}
           />
         )}
+        {viewMode === "week" && (
+          <WeekView
+            onTimeClick={handleTimeClick}
+            onEventClick={handleEventClick}
+          />
+        )}
 
         {viewMode === "month" && (
           <MonthView
@@ -91,8 +97,6 @@ const Calendar: React.FC = () => {
             onEventClick={handleEventClick}
           />
         )}
-
-        {viewMode === "week" && <WeekView />}
 
         {viewMode === "year" && (
           <YearView year={year} onDateSelect={handleDateSelect} />

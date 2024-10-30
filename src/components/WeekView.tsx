@@ -1,8 +1,14 @@
+import React from "react";
 import dayjs from "dayjs";
 import { useCalendarStore } from "../store/useCalendarStore";
 import { startOfWeek, addDays, isSameDay } from "date-fns";
 import { DndContext } from "@dnd-kit/core";
 import DraggableEvent from "./DraggableEvent";
+
+interface WeekViewProps {
+  onTimeClick: (time: Date) => void;
+  onEventClick: (event: any) => void;
+}
 
 const calculateEventPositions = (events: any) => {
   const filteredEvents = events.filter((event: any) => !event.allDay);
@@ -42,7 +48,7 @@ const calculateEventPositions = (events: any) => {
   return positions;
 };
 
-const WeekView = () => {
+const WeekView: React.FC<WeekViewProps> = ({ onTimeClick, onEventClick }) => {
   const { events, currentDate, updateEventTime } = useCalendarStore();
   const weekStart = startOfWeek(dayjs(currentDate).toDate(), {
     weekStartsOn: 0,
@@ -62,15 +68,23 @@ const WeekView = () => {
             const eventPositions = calculateEventPositions(dayEvents);
 
             return (
-              <div key={dayIndex} className="border-r  relative">
+              <div key={dayIndex} className="border-r relative">
                 <div className="grid grid-rows-24 h-full">
                   {Array.from({ length: 24 }).map((_, hourIndex) => {
+                    // Tạo thời gian cho khối giờ này
+                    const hourTime = dayjs(currentDay)
+                      .hour(hourIndex)
+                      .minute(0)
+                      .second(0)
+                      .toDate();
+
                     return (
                       <div
                         key={hourIndex}
                         className={`border-t h-20 ${
                           isSameDay(currentDay, new Date()) ? "bg-blue-50" : ""
                         }`}
+                        onClick={() => onTimeClick(hourTime)}
                       >
                         <div className="flex">
                           {eventPositions
@@ -79,28 +93,32 @@ const WeekView = () => {
                                 dayjs(event.start).hour() === hourIndex
                             )
                             .map((event: any) => (
-                              <DraggableEvent
+                              <div
                                 key={event.id}
-                                event={event}
-                                style={{
-                                  width: event.width,
-                                  left: event.left,
-                                  fontSize: "0.75rem",
-                                }}
-                                onDrop={(newStartTime: Date) => {
-                                  const duration =
-                                    new Date(event.end).getTime() -
-                                    new Date(event.start).getTime();
-                                  const newEndTime = new Date(
-                                    newStartTime.getTime() + duration
-                                  );
-                                  updateEventTime(
-                                    event.id,
-                                    newStartTime,
-                                    newEndTime
-                                  );
-                                }}
-                              />
+                                onPointerUp={() => onEventClick(event)}
+                              >
+                                <DraggableEvent
+                                  event={event}
+                                  style={{
+                                    width: event.width,
+                                    left: event.left,
+                                    fontSize: "0.75rem",
+                                  }}
+                                  onDrop={(newStartTime: Date) => {
+                                    const duration =
+                                      new Date(event.end).getTime() -
+                                      new Date(event.start).getTime();
+                                    const newEndTime = new Date(
+                                      newStartTime.getTime() + duration
+                                    );
+                                    updateEventTime(
+                                      event.id,
+                                      newStartTime,
+                                      newEndTime
+                                    );
+                                  }}
+                                />
+                              </div>
                             ))}
                         </div>
                       </div>

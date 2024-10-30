@@ -80,7 +80,7 @@ const DayView: React.FC<DayViewProps> = ({
         <div className="flex">
           {eventPositions.map((event: any) => (
             <>
-              <div onPointerUp={() => onEventClick(event)}>
+              <div key={event.id} onPointerUp={() => onEventClick(event)}>
                 <DraggableEvent
                   key={event.id}
                   event={event}
