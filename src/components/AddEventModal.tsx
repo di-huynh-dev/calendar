@@ -392,6 +392,12 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
             className={`w-full border-b-[1px] ${
               isEditing ? "hover:border-blue-500" : ""
             }`}
+            rules={[
+              {
+                type: "url",
+                message: "Liên kết không hợp lệ",
+              },
+            ]}
           >
             <Input placeholder="Thêm liên kết Google Meet" bordered={false} />
           </Form.Item>
