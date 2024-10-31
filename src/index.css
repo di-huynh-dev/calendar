@@ -1,3 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.ql-editor {
+  min-height: 150px;
+}
+.ql-toolbar .ql-video {
+  margin: 0 auto;
+  display: block;
+  width: 100%;
+}
+
+.ql-video {
+  width: 100%;
+  height: 250px;
+}
+
+.ql-image {
+  width: 100%;
+  height: 150px;
+}
+
+.ql-tooltip.ql-editing {
+  margin-top: -30px !important;
+  left: 60px !important;
+}

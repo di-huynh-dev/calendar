@@ -1,66 +1,39 @@
-import {
-  Button,
-  Checkbox,
-  Col,
-  ColorPicker,
-  DatePicker,
-  Form,
-  Input,
-  Modal,
-  Popconfirm,
-  Row,
-  Select,
-  TimePicker,
-  Tooltip,
-} from "antd";
-
-import {
-  ListOrdered,
-  MapPin,
-  Palette,
-  Pencil,
-  Timer,
-  Trash,
-  Undo2,
-  Users,
-  X,
-} from "lucide-react";
-import GoogleMeetIcon from "../assets/meet.png";
-import dayjs from "dayjs";
-import cities from "../data/city.json";
-import wards from "../data/ward.json";
-import districts from "../data/district.json";
-import persons from "../data/person.json";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
-import { useCalendarStore } from "../store/useCalendarStore";
-import toast from "react-hot-toast";
-import { useEffect, useState } from "react";
+import { Button, Checkbox, Col, ColorPicker, DatePicker, Form, Input, Modal, Popconfirm, Row, Select, TimePicker, Tooltip } from 'antd'
+import { ListOrdered, MapPin, Palette, Timer, Trash, Undo2, Users, X } from 'lucide-react'
+import GoogleMeetIcon from '../assets/meet.png'
+import dayjs from 'dayjs'
+import cities from '../data/city.json'
+import wards from '../data/ward.json'
+import districts from '../data/district.json'
+import persons from '../data/person.json'
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.snow.css'
+import { useCalendarStore } from '../store/useCalendarStore'
+import toast from 'react-hot-toast'
+import { useEffect, useRef, useState } from 'react'
+import useReactQuill from '../hooks/useReactQuill'
 
 interface AddEventModalProps {
-  selectedTime: Date | null;
-  onClose: () => void;
-  selectedEvent: any;
+  selectedTime: Date | null
+  onClose: () => void
+  selectedEvent: any
 }
 
-const AddEventModal: React.FC<AddEventModalProps> = ({
-  selectedTime,
-  selectedEvent,
-  onClose,
-}) => {
-  const { addEvent, removeEvent, updateEvent } = useCalendarStore();
-  const isEditMode = Boolean(selectedEvent);
-  const [isEditing, setIsEditing] = useState(!isEditMode);
+const AddEventModal: React.FC<AddEventModalProps> = ({ selectedTime, selectedEvent, onClose }) => {
+  const { addEvent, removeEvent, updateEvent } = useCalendarStore()
+  const isEditMode = Boolean(selectedEvent)
+  const [isEditing, setIsEditing] = useState(!isEditMode)
+  const { modules, formats } = useReactQuill()
+  const quillRef = useRef<ReactQuill>(null)
 
-  const [form] = Form.useForm();
+  const [form] = Form.useForm()
 
   useEffect(() => {
     if (isEditMode && selectedEvent) {
       form.setFieldsValue({
         title: selectedEvent.title,
         time: {
-          date: dayjs(selectedEvent.start),
-          hour: [dayjs(selectedEvent.start), dayjs(selectedEvent.end)],
+          range: [dayjs(selectedEvent.start), dayjs(selectedEvent.end)],
         },
         googleMeetLink: selectedEvent.googleMeetLink,
         location: selectedEvent.location,
@@ -68,36 +41,26 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         description: selectedEvent.description,
         colorTag: selectedEvent.colorTag,
         allDay: selectedEvent.allDay,
-      });
+      })
     } else {
-      form.resetFields();
+      form.setFieldsValue({
+        time: {
+          range: selectedTime ? [dayjs(selectedTime), dayjs(selectedTime).add(1, 'hour')] : undefined,
+        },
+        description: '',
+      })
     }
-  }, [selectedEvent, form, isEditMode]);
+  }, [selectedEvent, selectedTime, form, isEditMode])
 
-  const selectedCity = Form.useWatch(["location", "city"], form);
-  const selectedDistrict = Form.useWatch(["location", "district"], form);
+  const selectedCity = Form.useWatch(['location', 'city'], form)
+  const selectedDistrict = Form.useWatch(['location', 'district'], form)
+  const selectedWard = Form.useWatch(['location', 'ward'], form)
 
   const onFinish = (values: any) => {
-    const {
-      title,
-      time,
-      googleMeetLink,
-      location,
-      participants,
-      description,
-      colorTag,
-      allDay,
-    } = values;
+    const { title, time, googleMeetLink, location, participants, description, colorTag, allDay } = values
 
-    const selectedDate = time.date ? dayjs(time.date) : dayjs();
-    const startTime = selectedDate
-      .hour(dayjs(time.hour[0]).hour())
-      .minute(dayjs(time.hour[0]).minute())
-      .second(0);
-    const endTime = selectedDate
-      .hour(dayjs(time.hour[1]).hour())
-      .minute(dayjs(time.hour[1]).minute())
-      .second(0);
+    const startTime = dayjs(time.range[0])
+    const endTime = dayjs(time.range[1])
 
     const event = {
       id: isEditMode ? selectedEvent.id : dayjs().valueOf().toString(),
@@ -110,66 +73,37 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
       description,
       colorTag,
       allDay,
-    };
+    }
+    console.log('update event', event)
 
     if (isEditMode) {
-      updateEvent(event);
-      toast.success("Sự kiện đã được cập nhật");
+      updateEvent(event)
+      toast.success('Sự kiện đã được cập nhật')
     } else {
-      addEvent(event);
-      toast.success("Sự kiện đã được thêm thành công");
+      addEvent(event)
+      toast.success('Sự kiện đã được thêm thành công')
     }
 
-    form.resetFields();
-    onClose();
-  };
-
+    form.resetFields()
+    onClose()
+  }
   const handleCancel = () => {
-    onClose();
-  };
+    onClose()
+  }
 
   const handleDeleteEvent = () => {
     if (selectedEvent) {
-      removeEvent(selectedEvent.id);
-      onClose();
-      toast.success("Sự kiện đã được xóa thành công");
+      removeEvent(selectedEvent.id)
+      onClose()
+      toast.success('Sự kiện đã được xóa thành công')
     }
-  };
-
-  const modulesQuill = {
-    toolbar: [
-      [{ size: [] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ list: "ordered" }, { list: "bullet" }],
-      ["link", "image", "video"],
-      ["clean"],
-    ],
-  };
-
-  const formatsQuill = [
-    "header",
-    "font",
-    "size",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "blockquote",
-    "list",
-    "bullet",
-    "indent",
-    "link",
-    "image",
-    "video",
-  ];
+  }
 
   return (
     <Modal
       title={
         <div className="flex items-center justify-between">
-          <p className="font-bold">
-            {isEditMode ? "Chi tiết sự kiện" : "Thêm sự kiện mới"}
-          </p>
+          <p className="font-bold">{isEditMode ? 'Chi tiết sự kiện' : 'Thêm sự kiện mới'}</p>
           <div className="flex gap-4 items-center">
             {isEditMode && (
               <>
@@ -178,7 +112,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
                     <Popconfirm
                       title="Xác nhận hủy thay đổi"
                       onConfirm={() => {
-                        setIsEditing(false);
+                        setIsEditing(false)
                       }}
                     >
                       <button>
@@ -189,10 +123,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
                 ) : (
                   <>
                     <Tooltip title="Xóa sự kiện">
-                      <Popconfirm
-                        title="Xác nhận Xóa sự kiện"
-                        onConfirm={handleDeleteEvent}
-                      >
+                      <Popconfirm title="Xác nhận Xóa sự kiện" onConfirm={handleDeleteEvent}>
                         <button>
                           <Trash size={16} />
                         </button>
@@ -213,9 +144,13 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
       onCancel={handleCancel}
       centered
       width={650}
-      footer={null}
       maskClosable={true}
       closable={false}
+      footer={
+        <Button type="primary" htmlType="submit" className="w-full mt-4" onClick={() => form.submit()}>
+          {isEditMode ? 'Cập nhật sự kiện' : 'Thêm sự kiện'}
+        </Button>
+      }
     >
       <Form
         form={form}
@@ -227,187 +162,151 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         layout="horizontal"
         className="max-h-[calc(100vh-200px)] overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 scrollbar-w-1]"
       >
+        {/* Title */}
         <Form.Item
           name="title"
-          className={`w-full ml-6 border-b-[1px] ${
-            isEditing ? " hover:border-blue-500" : ""
-          }`}
-          rules={[{ max: 100, message: "Tiêu đề qúa dài" }]}
+          className={`w-full ml-6 border-b-[1px] ${isEditing ? ' hover:border-blue-500' : ''}`}
+          rules={[{ max: 100, message: 'Tiêu đề qúa dài' }]}
         >
-          <Input
-            placeholder="Thêm tiêu đề"
-            size="large"
-            bordered={false}
-            className="text-xl"
-          />
+          <Input placeholder="Thêm tiêu đề" size="large" variant="borderless" className="text-xl" />
         </Form.Item>
 
+        {/* Participants */}
         <Form.Item label={<Users size={14} />}>
-          <Row gutter={24}>
-            <Col xs={24} sm={24}>
-              <Form.Item name="participants">
-                <Select
-                  placeholder="Người tham gia"
-                  showSearch
-                  allowClear
-                  mode="multiple"
-                  tagRender={() => <></>}
-                  filterOption={(input: string, option: any) => {
+          <Form.Item name="participants">
+            <Select
+              placeholder="Người tham gia"
+              showSearch
+              allowClear
+              mode="multiple"
+              tagRender={() => <></>}
+              filterOption={(input: string, option: any) => {
+                return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }}
+              onChange={(value) => {
+                form.setFieldsValue({ participants: value })
+              }}
+            >
+              {Object.values(persons).map((person) => (
+                <Select.Option key={person.id} value={person.id}>
+                  <div className="flex items-center">
+                    <img src={person.avatar} alt={person.name} className="w-6 h-6 object-cover rounded-full mr-2" />
+                    <div>
+                      <p>{person.name}</p>
+                      <p>{person.email}</p>
+                    </div>
+                  </div>
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item shouldUpdate noStyle>
+            {({ getFieldValue }) => {
+              const selectedParticipants = getFieldValue('participants') || []
+              return (
+                <div className="mt-2 grid grid-cols-2">
+                  {selectedParticipants.map((id: string) => {
+                    const person = persons.find((p) => p.id === Number(id))
                     return (
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    );
+                      <div key={id} className="grid grid-cols-8 gap-x-1 gap-y-2 items-center">
+                        <img src={person?.avatar} alt={person?.name} className="col-span-1 w-6 h-6 object-cover rounded-full" />
+                        <div className="col-span-6">
+                          <p>{person?.name}</p>
+                          <p>{person?.email}</p>
+                        </div>
+                        <X
+                          size={16}
+                          className="col-span-1 cursor-pointer ml-2"
+                          onClick={() => {
+                            const newParticipants = selectedParticipants.filter((p: string) => p !== id)
+                            form.setFieldsValue({
+                              participants: newParticipants,
+                            })
+                          }}
+                        />
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            }}
+          </Form.Item>
+        </Form.Item>
+
+        {/* Time events */}
+        <Form.Item label={<Timer size={14} />} className="mb-0">
+          <Row gutter={24}>
+            <Col xs={24} sm={18}>
+              <Form.Item name={['time', 'range']}>
+                <DatePicker.RangePicker
+                  className="w-full"
+                  format={'DD-MM-YYYY HH:mm'}
+                  showTime={{ format: 'HH:mm', minuteStep: 15 }}
+                  value={form.getFieldValue(['time', 'range'])}
+                  onChange={(dates) => {
+                    form.setFieldsValue({ time: { range: dates } })
                   }}
-                  onChange={(value) => {
-                    form.setFieldsValue({ participants: value });
+                />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} sm={6}>
+              <Form.Item name="allDay" valuePropName="checked">
+                <Checkbox
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      const range = form.getFieldValue(['time', 'range']) || [dayjs(), dayjs().add(1, 'hour')]
+                      form.setFieldsValue({
+                        time: {
+                          range: [range[0].startOf('day'), range[0].endOf('day')],
+                        },
+                      })
+                    } else {
+                      const initialRange = selectedTime
+                        ? [dayjs(selectedTime), dayjs(selectedTime).add(1, 'hour')]
+                        : [dayjs(), dayjs().add(1, 'hour')]
+                      form.setFieldsValue({
+                        time: {
+                          range: initialRange,
+                        },
+                      })
+                    }
                   }}
                 >
-                  {Object.values(persons).map((person) => (
-                    <Select.Option key={person.id} value={person.id}>
-                      <div className="flex items-center">
-                        <img
-                          src={person.avatar}
-                          alt={person.name}
-                          className="w-6 h-6 object-cover rounded-full mr-2"
-                        />
-                        <div>
-                          <p>{person.name}</p>
-                          <p>{person.email}</p>
-                        </div>
-                      </div>
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-              <Form.Item shouldUpdate noStyle>
-                {({ getFieldValue }) => {
-                  const selectedParticipants =
-                    getFieldValue("participants") || [];
-                  return (
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                      {selectedParticipants.map((id: string) => {
-                        const person = persons.find((p) => p.id === Number(id));
-                        return (
-                          <div key={id} className="flex items-center mb-2">
-                            <img
-                              src={person?.avatar}
-                              alt={person?.name}
-                              className="w-6 h-6 object-cover rounded-full mr-2"
-                            />
-                            <div>
-                              <p>{person?.name}</p>
-                              <p>{person?.email}</p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                }}
+                  Cả ngày
+                </Checkbox>
               </Form.Item>
             </Col>
           </Row>
         </Form.Item>
-        <Form.Item label={<Timer size={14} />}>
-          <Row gutter={24}>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                name={["time", "date"]}
-                initialValue={selectedTime ? dayjs(selectedTime) : dayjs()}
-              >
-                <DatePicker
-                  className="w-full"
-                  format={"DD-MM-YYYY"}
-                  disabledDate={(current) => current.isBefore(dayjs(), "day")}
-                  onChange={(date) => {
-                    form.setFieldsValue({ time: { date } });
-                  }}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                name={["time", "hour"]}
-                initialValue={
-                  selectedTime
-                    ? [dayjs(selectedTime), dayjs(selectedTime).add(1, "hour")]
-                    : undefined
-                }
-              >
-                <TimePicker.RangePicker
-                  format={"hh:mm A"}
-                  className="w-full"
-                  minuteStep={15}
-                  disabled={form.getFieldValue("allDay")}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form.Item>
-        <Form.Item name="allDay" valuePropName="checked">
-          <Checkbox
-            onChange={(e) => {
-              if (e.target.checked) {
-                const date = form.getFieldValue(["time", "date"]) || dayjs();
-                form.setFieldsValue({
-                  time: {
-                    date,
-                    hour: [date.startOf("day"), date.endOf("day")],
-                  },
-                });
-              } else {
-                form.setFieldsValue({
-                  time: {
-                    ...form.getFieldValue("time"),
-                    hour: undefined,
-                  },
-                });
-              }
-            }}
-          >
-            Cả ngày
-          </Checkbox>
-        </Form.Item>
-        <Form.Item
-          label={
-            <img
-              src={GoogleMeetIcon}
-              alt="GG meet icon"
-              className="w-4 h-4 mr-2"
-            ></img>
-          }
-        >
+
+        {/* Google meet link */}
+        <Form.Item label={<img src={GoogleMeetIcon} alt="GG meet icon" className="w-4 h-4 mr-2 mt-2" />} className="mb-0">
           <Form.Item
             name="googleMeetLink"
-            className={`w-full border-b-[1px] ${
-              isEditing ? "hover:border-blue-500" : ""
-            }`}
+            className={`w-full border-b-[1px] ${isEditing ? 'hover:border-blue-500' : ''}`}
             rules={[
               {
-                type: "url",
-                message: "Liên kết không hợp lệ",
+                type: 'url',
+                message: 'Liên kết không hợp lệ',
               },
             ]}
           >
-            <Input placeholder="Thêm liên kết Google Meet" bordered={false} />
+            <Input placeholder="Thêm liên kết Google Meet" variant="borderless" />
           </Form.Item>
         </Form.Item>
-        <Form.Item label={<MapPin size={14} />}>
+
+        {/* Location */}
+        <Form.Item label={<MapPin size={14} className="mb-0" />}>
           <Row gutter={24}>
-            <Col xs={24} sm={12}>
-              <Form.Item name={["location", "city"]}>
+            <Col xs={24} sm={24}>
+              <Form.Item name={['location', 'city']}>
                 <Select
                   placeholder="Thành phố"
                   showSearch
                   allowClear
                   filterOption={(input, option) => {
-                    return (
-                      option?.children
-                        ?.toString()
-                        .toLowerCase()
-                        .includes(input.toLowerCase()) ?? false
-                    );
+                    return option?.children?.toString().toLowerCase().includes(input.toLowerCase()) ?? false
                   }}
                   onChange={(value) => {
                     form.setFieldsValue({
@@ -416,7 +315,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
                         district: undefined,
                         ward: undefined,
                       },
-                    });
+                    })
                   }}
                 >
                   {Object.values(cities).map((city) => (
@@ -428,25 +327,20 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
-              <Form.Item name={["location", "district"]}>
+              <Form.Item name={['location', 'district']}>
                 <Select
                   placeholder="Quận/huyện"
                   showSearch
                   allowClear
-                  filterOption={(input, option) =>
-                    option?.children
-                      ?.toString()
-                      .toLowerCase()
-                      .includes(input.toLowerCase()) || false
-                  }
+                  filterOption={(input, option) => option?.children?.toString().toLowerCase().includes(input.toLowerCase()) || false}
                   onChange={(value) => {
                     form.setFieldsValue({
                       location: {
-                        ...form.getFieldValue("location"),
+                        ...form.getFieldValue('location'),
                         district: value,
                         ward: undefined,
                       },
-                    });
+                    })
                   }}
                   disabled={!selectedCity}
                 >
@@ -461,26 +355,21 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
-              <Form.Item name={["location", "ward"]}>
+              <Form.Item name={['location', 'ward']}>
                 <Select
                   placeholder="Phường/xã"
                   showSearch
                   allowClear
                   filterOption={(input, option) => {
-                    return (
-                      option?.children
-                        ?.toString()
-                        .toLowerCase()
-                        .includes(input.toLowerCase()) ?? false
-                    );
+                    return option?.children?.toString().toLowerCase().includes(input.toLowerCase()) ?? false
                   }}
                   onChange={(value) => {
                     form.setFieldsValue({
                       location: {
-                        ...form.getFieldValue("location"),
+                        ...form.getFieldValue('location'),
                         ward: value,
                       },
-                    });
+                    })
                   }}
                   disabled={!selectedDistrict}
                 >
@@ -494,73 +383,42 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
                 </Select>
               </Form.Item>
             </Col>
-            <Form.Item
-              className={`w-full border-b-[1px] ${
-                isEditing ? " hover:border-blue-500" : ""
-              }`}
-              name={["location", "address"]}
-            >
-              <Input
-                placeholder="Địa chỉ cụ thể"
-                bordered={false}
-                disabled={!selectedDistrict || !selectedCity}
-              />
+            <Form.Item className={`w-full border-b-[1px] mb-0 ${isEditing ? ' hover:border-blue-500' : ''}`} name={['location', 'address']}>
+              <Input placeholder="Địa chỉ cụ thể" variant="borderless" disabled={!selectedDistrict || !selectedCity || !selectedWard} />
             </Form.Item>
           </Row>
         </Form.Item>
+
+        {/* Color event */}
         <Form.Item label={<Palette size={14} />} name="colorTag">
-          <Tooltip title="Màu sắc cho tag">
+          <Tooltip title="Màu sắc sự kiện">
             <ColorPicker
               allowClear
               showText
               onChange={(color) => {
-                form.setFieldsValue({ colorTag: color.toHexString() });
+                form.setFieldsValue({ colorTag: color.toHexString() })
               }}
             />
           </Tooltip>
         </Form.Item>
-        <Form.Item label={<ListOrdered size={14} />} name="description">
+
+        {/* Description */}
+        <Form.Item label={<ListOrdered size={14} />} name="description" className="mb-0">
           <Col span={24}>
             <ReactQuill
+              ref={quillRef}
               theme="snow"
               placeholder="Thêm mô tả hoặc tệp đính kèm trên Google Drive"
               onChange={(value) => form.setFieldsValue({ description: value })}
-              modules={modulesQuill}
-              formats={formatsQuill}
-              value={form.getFieldValue("description")}
-              style={{ maxHeight: "200px", overflowY: "auto" }}
+              modules={modules}
+              formats={formats}
+              value={form.getFieldValue('description')}
             />
-            <style>
-              {`
-              .ql-toolbar .ql-video {
-              margin: 0 auto; 
-              display: block;
-              width: 100%; 
-              }
-              .ql-video {
-              width: 100%;
-              height: 250px;
-              }
-              .ql-image {
-              width: 100%;
-              height: 150px;
-              }
-              .ql-tooltip.ql-editing {
-              margin-top: -30px;
-              left: 60px !important;
-              }
-            `}
-            </style>
           </Col>
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" className="w-full mt-8">
-            {isEditMode ? "Cập nhật sự kiện" : "Thêm sự kiện"}
-          </Button>
         </Form.Item>
       </Form>
     </Modal>
-  );
-};
+  )
+}
 
-export default AddEventModal;
+export default AddEventModal
