@@ -16,6 +16,7 @@ interface DayViewProps {
 
 const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick }) => {
   const { currentDate, events } = useCalendarStore()
+
   const { currentHour, currentMinutes, currentPosition } = useTimeline()
   const [draggedEvent, setDraggedEvent] = useState<any>(null)
 
@@ -108,9 +109,7 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick }) =>
             </div>
           ))}
         </div>
-        {isSameDay(currentDate.toDate(), new Date()) && (
-          <CurrentTimeIndicator currentPosition={currentPosition} currentHour={currentHour} currentMinutes={currentMinutes} />
-        )}
+        <CurrentTimeIndicator currentPosition={currentPosition} currentHour={currentHour} currentMinutes={currentMinutes} />
       </div>
     </DndContext>
   )

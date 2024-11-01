@@ -261,6 +261,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ selectedTime, selectedEve
                   value={form.getFieldValue(['time', 'range'])}
                   onChange={(dates) => {
                     form.setFieldsValue({ time: { range: dates } })
+                    form.setFieldValue('allDay', '')
                   }}
                 />
               </Form.Item>

@@ -133,6 +133,16 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
               days.map((day, i) => {
                 const dayHolidays = holidays.filter((holiday) => isSameDay(day, new Date(holiday.date)))
                 const dayAllDayEvents = events.filter((event) => isSameDay(day, new Date(event.start)) && event.allDay)
+                const longEvents = events.filter((event) => {
+                  const start = dayjs(event.start)
+                  const end = dayjs(event.end)
+
+                  return (
+                    !event.allDay &&
+                    !start.isSame(end, 'day') &&
+                    (start.isSame(day, 'day') || end.isSame(day, 'day') || (start.isBefore(day, 'day') && end.isAfter(day, 'day')))
+                  )
+                })
 
                 return (
                   <div key={i} className="text-center">
@@ -146,17 +156,47 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                     >
                       {format(day, 'd')}
                     </div>
-                    <div className="mt-2 space-y-1 overflow-y-auto" style={{ maxHeight: '48px' }}>
+                    <div className="space-y-1 overflow-y-auto" style={{ maxHeight: '48px' }}>
                       {dayHolidays.map((holiday) => (
-                        <div key={holiday.name} className="p-1 border border-dashed rounded-lg bg-green-100 text-green-500 text-xs">
+                        <div key={holiday.name} className="p-2 border border-dashed rounded-lg bg-green-100 text-green-500 text-xs">
                           {holiday.name}
                         </div>
                       ))}
-
+                      {longEvents.map((event) => {
+                        return (
+                          <Tooltip
+                            title={
+                              <>
+                                <p className="text-white">{event.title ? event.title : '(Không có tiêu đề)'}</p>
+                                <p className="text-white text-xs">
+                                  {dayjs(event.start).format('DD/MM/YYYY HH:mm')} - {dayjs(event.end).format('DD/MM/YYYY HH:mm')}
+                                </p>
+                              </>
+                            }
+                            color="blue"
+                            placement="bottomRight"
+                          >
+                            <button
+                              key={event.id}
+                              style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
+                              className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full"
+                              onClick={() => onEventClick(event)}
+                            >
+                              <p className="text-white">
+                                {event.title
+                                  ? event.title.length > 10
+                                    ? event.title.slice(0, 5) + '...'
+                                    : event.title
+                                  : '(Không có tiêu đề)'}
+                              </p>
+                            </button>
+                          </Tooltip>
+                        )
+                      })}
                       {dayAllDayEvents.map((event) => (
                         <button
                           key={event.id}
-                          className="p-2 border border-dashed rounded-lg bg-blue-100"
+                          className="p-2 border border-dashed rounded-lg bg-blue-100 w-full text-xs"
                           onClick={() => onEventClick(event)}
                         >
                           <span className="text-blue-500">{event.title ? event.title : '(Không có tiêu đề)'}</span>
@@ -168,12 +208,10 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
               })}
             {viewMode === 'day' && (
               <div className="mx-10">
-                <div className="flex gap-2">
+                <div className="grid grid-flow-col gap-2">
                   {currentHolidays.map((holiday) => (
-                    <button key={holiday.id} className="p-2 border border-dashed rounded-lg bg-green-100">
-                      <span className="text-green-500">
-                        {holiday.name} ({dayjs(holiday.date).format('DD/MM')})
-                      </span>
+                    <button key={holiday.id} className="p-2 border border-dashed rounded-lg bg-green-100 w-full">
+                      <span className="text-green-500">{holiday.name}</span>
                     </button>
                   ))}
                   {longEvents.map((event) => {
@@ -193,7 +231,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                         <button
                           key={event.id}
                           style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
-                          className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full"
+                          className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full text-xs"
                           onClick={() => onEventClick(event)}
                         >
                           <p className="text-white">
@@ -207,7 +245,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                     <button
                       key={event.id}
                       style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
-                      className="p-2 border border-dashed rounded-lg "
+                      className="p-2 border border-dashed rounded-lg text-xs"
                       onClick={() => onEventClick(event)}
                     >
                       <p className="text-white">
