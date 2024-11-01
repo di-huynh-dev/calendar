@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useTransition } from 'react'
+import React, { useEffect, useState } from 'react'
 import dayjs from 'dayjs'
 import { useCalendarStore } from '../store/useCalendarStore'
-import { Tooltip } from 'antd'
+import { Tooltip, Spin } from 'antd'
 
 interface YearViewProps {
   year: number
@@ -11,8 +11,7 @@ interface YearViewProps {
 
 const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEventClick }) => {
   const { events, holidays, fetchHolidays } = useCalendarStore()
-  const [isPending, startTransition] = useTransition()
-  const [loadingHolidays, setLoadingHolidays] = useState(true)
+  const [loadingHolidays, setLoadingHolidays] = useState(false)
 
   useEffect(() => {
     const loadHolidays = async () => {
@@ -49,7 +48,7 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEv
         <div className="grid grid-cols-7 gap-1">
           {Array.from({ length: daysInMonth }, (_, dayIndex) => {
             const currentDate = startOfMonth.add(dayIndex, 'day')
-            const dailyEvents = getEventsForDate(currentDate)
+            const dailyEvents = loadingHolidays ? [] : getEventsForDate(currentDate)
 
             return (
               <Tooltip
@@ -59,16 +58,12 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEv
                     {dailyEvents.length > 0 ? (
                       dailyEvents.map((event) => (
                         <div key={event.id}>
-                          {'start' in event ? (
-                            <button onClick={() => onEventClick(event)}>
-                              <p>
-                                {event.title ? event.title : '(Không có tiêu đề)'} ({dayjs(event.start).format('HH:mm A')}{' '}
-                                {'end' in event ? `- ${dayjs(event.end).format('HH:mm A')}` : ''})
-                              </p>
-                            </button>
-                          ) : (
-                            <p>{event.title ? event.title : '(Không có tiêu đề)'} (Cả ngày)</p>
-                          )}
+                          <button onClick={() => onEventClick(event)}>
+                            <p>
+                              {event.title || '(Không có tiêu đề)'} {'start' in event ? `(${dayjs(event.start).format('HH:mm A')}` : ''}{' '}
+                              {'end' in event ? `- ${dayjs(event.end).format('HH:mm A')}` : ''})
+                            </p>
+                          </button>
                         </div>
                       ))
                     ) : (
@@ -82,17 +77,14 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEv
                   className={`text-center text-sm p-1 cursor-pointer hover:bg-blue-100 rounded ${
                     currentDate.isSame(dayjs(), 'day') ? 'bg-blue-300' : ''
                   }`}
-                  onClick={() =>
-                    startTransition(() => {
-                      onDateSelect(currentDate.toDate())
-                    })
-                  }
+                  onClick={() => onDateSelect(currentDate.toDate())}
                 >
                   <div className={`inline-block ${currentDate.isSame(dayjs(), 'day') ? 'text-blue-500 border-1 font-bold' : ''}`}>
                     {currentDate.date()}
                   </div>
 
-                  {dailyEvents.length > 0 && (
+                  {/* Display placeholders while loading */}
+                  {!loadingHolidays && dailyEvents.length > 0 && (
                     <div className="mt-1 flex justify-center">
                       {dailyEvents.map((event, index) => (
                         <span
@@ -114,7 +106,11 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEv
     )
   })
 
-  return <div className="grid grid-cols-4 gap-x-20 gap-y-3 p-4">{months}</div>
+  return (
+    <Spin spinning={loadingHolidays} tip="Đang tải...">
+      <div className="grid grid-cols-4 gap-x-20 gap-y-3 p-4">{months}</div>
+    </Spin>
+  )
 })
 
 export default YearView

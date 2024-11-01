@@ -49,7 +49,7 @@ const calculateEventPositions = (events: any, overlapOffset: number = 20) => {
         top: `${top}%`,
         height: `${height}%`,
         zIndex: index,
-        width: `calc(100% - ${overlapOffset * group.length}px)`,
+        width: `calc(100% - ${index * overlapOffset}px)`,
       }
     })
   })

@@ -6,6 +6,7 @@ import DraggableEvent from './DraggableEvent'
 import { CurrentTimeIndicator } from './CurrentTimeIndicator'
 import { HourBlock } from './HourBlock'
 import useTimeline from '../hooks/useTimeline'
+import { isSameDay } from 'date-fns'
 
 interface DayViewProps {
   date: Dayjs
@@ -107,7 +108,7 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick }) =>
             </div>
           ))}
         </div>
-        {dayjs(currentDate).isSame(date, 'day') && (
+        {isSameDay(currentDate.toDate(), new Date()) && (
           <CurrentTimeIndicator currentPosition={currentPosition} currentHour={currentHour} currentMinutes={currentMinutes} />
         )}
       </div>

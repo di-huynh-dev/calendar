@@ -37,7 +37,7 @@ const Calendar: React.FC = () => {
   }
 
   const handleDateSelect = (date: any) => {
-    setSelectedTime(date.toDate())
+    setSelectedTime(dayjs(date).toDate())
     setSelectedEvent(null)
     setIsModalOpen(true)
   }

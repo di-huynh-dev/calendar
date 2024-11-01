@@ -152,6 +152,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                           {holiday.name}
                         </div>
                       ))}
+
                       {dayAllDayEvents.map((event) => (
                         <button
                           key={event.id}
