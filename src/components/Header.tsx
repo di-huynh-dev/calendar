@@ -1,4 +1,4 @@
-import { Button, DatePicker, Input, Layout, Radio, Select, Tooltip } from 'antd'
+import { Button, DatePicker, Layout, Select, Tooltip } from 'antd'
 import { useCalendarStore } from '../store/useCalendarStore'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Header } from 'antd/es/layout/layout'
@@ -39,13 +39,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
   const debouncedSearch = useCallback(debounce(handleSearch, 500), [handleSearch])
   const currentHolidays = holidays.filter((holiday) => dayjs(holiday.date).isSame(currentDate, 'day'))
 
-  const currentAllDayEvents = events.filter(
-    (event) =>
-      (dayjs(event.start).isSame(currentDate, 'day') ||
-        dayjs(event.start).isBefore(currentDate, 'day') ||
-        dayjs(event.start).isAfter(currentDate, 'day')) &&
-      event.allDay,
-  )
+  const currentAllDayEvents = events.filter((event) => dayjs(event.start).isSame(currentDate, 'day') && event.allDay)
 
   const longEvents = events.filter((event) => {
     const start = dayjs(event.start)
@@ -202,19 +196,8 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                           onClick={() => onEventClick(event)}
                         >
                           <p className="text-white">
-                            {event.title
-                              ? event.title.length > 10
-                                ? event.title.slice(0, 10) + '...'
-                                : event.title
-                              : '(Không có tiêu đề)'}
+                            {event.title ? (event.title.length > 10 ? event.title.slice(0, 5) + '...' : event.title) : '(Không có tiêu đề)'}
                           </p>
-                          {isSameDay(dayjs(event.start).toDate(), dayjs(currentDate).toDate()) && (
-                            <p className="text-white text-xs">(Từ {dayjs(event.start).format('HH:mm')})</p>
-                          )}
-                          {isSameDay(dayjs(event.end).toDate(), dayjs(currentDate).toDate()) &&
-                            !isSameDay(dayjs(event.start).toDate(), dayjs(currentDate).toDate()) && (
-                              <p className="text-white text-xs">(đến {dayjs(event.end).format('HH:mm')})</p>
-                            )}
                         </button>
                       </Tooltip>
                     )
@@ -226,7 +209,9 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                       className="p-2 border border-dashed rounded-lg "
                       onClick={() => onEventClick(event)}
                     >
-                      <span className="text-white">{event.title ? event.title : '(Không có tiêu đề)'}</span>
+                      <p className="text-white">
+                        {event.title ? (event.title.length > 10 ? event.title.slice(0, 5) + '...' : event.title) : '(Không có tiêu đề)'}
+                      </p>
                     </button>
                   ))}
                 </div>

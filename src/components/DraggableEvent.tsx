@@ -19,16 +19,18 @@ interface Event {
 interface DraggableEventProps {
   event: Event
   style?: React.CSSProperties
-  handleClick: (event: Event) => void // Updated type for clarity
+  handleClick: (event: Event) => void
 }
 
 const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleClick }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: event.id,
   })
+
   const { viewMode, updateEventTime } = useCalendarStore()
   const [newStartTime, setNewStartTime] = useState<Date>(event.start)
   const [isDragging, setIsDragging] = useState(false)
+
   const isMoreThan5Hours = dayjs(event.end).diff(dayjs(event.start), 'hour') > 5
 
   // Function to round to the nearest quarter hour
@@ -46,11 +48,7 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
       setIsDragging(true)
 
       const offsetY = transform.y
-
-      // Define pixels per 15-minute interval
       const pixelsPer15Minutes = 20
-
-      // Calculate minutes to add based on 15-minute intervals
       const minutesToAdd = Math.round(offsetY / pixelsPer15Minutes) * 15
 
       // Calculate the new start time, rounded to the nearest 15 minutes
@@ -79,14 +77,14 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
   const handleDrop = () => {
     setIsDragging(false)
 
-    // // Round to the nearest quarter hour for the dropped time
+    // Round to the nearest quarter hour for the dropped time
     const roundedNewStartTime = roundToNearestQuarterHour(newStartTime)
 
-    // // Calculate the duration based on the original event times
+    // Calculate the duration based on the original event times
     const duration = endTime.getTime() - startTime.getTime()
     const newEndTime = new Date(roundedNewStartTime.getTime() + duration)
 
-    // // Update the event with new times
+    // Optionally update the store directly
     updateEventTime(event.id, roundedNewStartTime, newEndTime)
   }
 
@@ -127,21 +125,17 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
         borderRadius: '0.75rem',
         padding: '0.5rem',
         border: '1px solid #ffffff',
-        backgroundColor: event.colorTag ? event.colorTag : '#79a7f3',
+        backgroundColor: event.colorTag || '#79a7f3',
       }}
     >
       <div className={`text-md ${endTime.getTime() - startTime.getTime() < 31 * 60 * 1000 ? 'flex items-center gap-2 text-xs' : ''}`}>
-        {
-          <>
-            <div className="flex gap-2 items-center">
-              <p>
-                {dayjs(event.start).format('HH:mm')} - {dayjs(event.end).format('HH:mm')}
-              </p>
-              <p>{event.googleMeetLink && viewMode !== 'week' && <Video size={16} />}</p>
-            </div>
-            <p>{event.title ? event.title : '(Không có tiêu đề)'}</p>
-          </>
-        }
+        <div className="flex gap-2 items-center">
+          <p>
+            {dayjs(event.start).format('HH:mm')} - {dayjs(event.end).format('HH:mm')}
+          </p>
+          <p>{event.googleMeetLink && viewMode !== 'week' && <Video size={16} />}</p>
+        </div>
+        <p>{event.title || '(Không có tiêu đề)'}</p>
       </div>
     </div>
   )
@@ -154,14 +148,11 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
         <>
           <div className="flex gap-2 items-center">
             <p>
-              {dayjs(event.start).format('HH:mm')} -{' '}
-              {dayjs(event.start)
-                .add(endTime.getTime() - startTime.getTime(), 'millisecond')
-                .format('HH:mm')}
+              {dayjs(event.start).format('HH:mm')} - {dayjs(event.end).format('HH:mm')}
             </p>
             <p>{event.googleMeetLink && <Video size={16} />}</p>
           </div>
-          <p>{event.title ? event.title : '(Không có tiêu đề)'}</p>
+          <p>{event.title || '(Không có tiêu đề)'}</p>
         </>
       }
     >

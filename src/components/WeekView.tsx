@@ -12,25 +12,48 @@ interface WeekViewProps {
   onEventClick: (event: any) => void
 }
 
-const calculateEventPositions = (events: any) => {
-  const filteredEvents = events.filter((event: any) => !event.allDay && dayjs(event.start).isSame(event.end, 'day'))
+const calculateEventPositions = (events: any, overlapOffset: number = 20) => {
+  const filteredEvents = events.filter((event: any) => {
+    const isMultiDay = !dayjs(event.start).isSame(event.end, 'day')
+    return !event.allDay && !isMultiDay
+  })
+
   const sortedEvents = filteredEvents.sort((a: any, b: any) => new Date(a.start).getTime() - new Date(b.start).getTime())
-  const positions = sortedEvents.map((event: any, index: number, allEvents: any[]) => {
-    const overlappingEvents = allEvents.filter((e) => dayjs(e.start).isBefore(event.end) && dayjs(e.end).isAfter(event.start))
-    const eventWidth = 100 / overlappingEvents.length
-    const eventIndex = overlappingEvents.findIndex((e) => e.id === event.id)
-    const startMinutes = dayjs(event.start).minute()
-    const endMinutes = dayjs(event.end).diff(dayjs(event.start), 'minute')
-    const top = (startMinutes / 60) * 100
-    const height = (endMinutes / 60) * 100
-    return {
-      ...event,
-      width: `${eventWidth}%`,
-      left: `${eventIndex * eventWidth}%`,
-      top: `${top}%`,
-      height: `${height}%`,
+  const eventGroups: any[] = []
+  let currentGroup: any[] = []
+
+  sortedEvents.forEach((event: any) => {
+    if (currentGroup.length === 0 || dayjs(event.start).isBefore(currentGroup[currentGroup.length - 1].end)) {
+      currentGroup.push(event)
+    } else {
+      eventGroups.push(currentGroup)
+      currentGroup = [event]
     }
   })
+
+  if (currentGroup.length > 0) {
+    eventGroups.push(currentGroup)
+  }
+
+  const positions = eventGroups.flatMap((group) => {
+    return group.map((event: any, index: number) => {
+      const startMinutes = dayjs(event.start).minute()
+      const endMinutes = dayjs(event.end).diff(dayjs(event.start), 'minute')
+      const top = (startMinutes / 60) * 100
+      const height = (endMinutes / 60) * 100
+      const left = index * overlapOffset
+
+      return {
+        ...event,
+        left: `${left}px`,
+        top: `${top}%`,
+        height: `${height}%`,
+        zIndex: index,
+        width: `calc(100% - ${overlapOffset * group.length}px)`,
+      }
+    })
+  })
+
   return positions
 }
 

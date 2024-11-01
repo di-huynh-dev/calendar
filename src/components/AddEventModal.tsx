@@ -74,7 +74,6 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ selectedTime, selectedEve
       colorTag,
       allDay,
     }
-    console.log('update event', event)
 
     if (isEditMode) {
       updateEvent(event)

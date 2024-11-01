@@ -34,7 +34,12 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick }) =>
   }
 
   const calculateEventPositions = (events: any) => {
-    const sortedEvents = events.sort((a: any, b: any) => new Date(a.start).getTime() - new Date(b.start).getTime())
+    const filteredEvents = events.filter((event: any) => {
+      const isMultiDay = !dayjs(event.start).isSame(event.end, 'day')
+      return !event.allDay && !isMultiDay
+    })
+
+    const sortedEvents = filteredEvents.sort((a: any, b: any) => new Date(a.start).getTime() - new Date(b.start).getTime())
 
     const eventGroups: any[] = []
     let currentGroup: any[] = []
@@ -68,7 +73,7 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick }) =>
           top: `${top}%`,
           height: `${height}%`,
           zIndex: index,
-          width: `calc(100% - ${overlapOffset}px - ${index * overlapOffset}px)`,
+          width: `calc(100% - ${index * overlapOffset}px)`,
         }
       })
     })
