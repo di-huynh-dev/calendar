@@ -421,17 +421,15 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ selectedTime, selectedEve
 
         {/* Description */}
         <Form.Item label={<ListOrdered size={14} />} name="description" className="mb-0">
-          <Col span={24}>
-            <ReactQuill
-              ref={quillRef}
-              theme="snow"
-              placeholder="Thêm mô tả hoặc tệp đính kèm trên Google Drive"
-              onChange={(value) => form.setFieldsValue({ description: value })}
-              modules={modules}
-              formats={formats}
-              value={form.getFieldValue('description')}
-            />
-          </Col>
+          <ReactQuill
+            ref={quillRef}
+            theme="snow"
+            placeholder="Thêm mô tả hoặc tệp đính kèm trên Google Drive"
+            onChange={(value) => form.setFieldsValue({ description: value })}
+            modules={modules}
+            formats={formats}
+            value={form.getFieldValue('description')}
+          />
         </Form.Item>
       </Form>
     </Modal>
