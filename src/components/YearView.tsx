@@ -6,9 +6,10 @@ import { Tooltip } from 'antd'
 interface YearViewProps {
   year: number
   onDateSelect: (date: Date) => void
+  onEventClick: (event: any) => void
 }
 
-const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect }) => {
+const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEventClick }) => {
   const { events, holidays, fetchHolidays } = useCalendarStore()
   const [isPending, startTransition] = useTransition()
   const [loadingHolidays, setLoadingHolidays] = useState(true)
@@ -58,11 +59,16 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect }) =>
                     {dailyEvents.length > 0 ? (
                       dailyEvents.map((event) => (
                         <div key={event.id}>
-                          <p>
-                            {event.title ? event.title : '(Không có tiêu đề)'} (
-                            {'start' in event ? dayjs(event.start).format('HH:mm A') : 'Cả ngày'}{' '}
-                            {'start' in event && 'end' in event ? `- ${dayjs(event.end).format('HH:mm A')}` : ''})
-                          </p>
+                          {'start' in event ? (
+                            <button onClick={() => onEventClick(event)}>
+                              <p>
+                                {event.title ? event.title : '(Không có tiêu đề)'} ({dayjs(event.start).format('HH:mm A')}{' '}
+                                {'end' in event ? `- ${dayjs(event.end).format('HH:mm A')}` : ''})
+                              </p>
+                            </button>
+                          ) : (
+                            <p>{event.title ? event.title : '(Không có tiêu đề)'} (Cả ngày)</p>
+                          )}
                         </div>
                       ))
                     ) : (
@@ -73,16 +79,18 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect }) =>
                 color="#3b82f6"
               >
                 <div
-                  className="text-center text-sm p-1 cursor-pointer hover:bg-blue-100 rounded"
+                  className={`text-center text-sm p-1 cursor-pointer hover:bg-blue-100 rounded ${
+                    currentDate.isSame(dayjs(), 'day') ? 'bg-blue-300' : ''
+                  }`}
                   onClick={() =>
                     startTransition(() => {
                       onDateSelect(currentDate.toDate())
                     })
                   }
                 >
-                  <span className={`inline-block ${currentDate.isSame(dayjs(), 'day') ? 'text-blue-500 font-bold' : ''}`}>
+                  <div className={`inline-block ${currentDate.isSame(dayjs(), 'day') ? 'text-blue-500 border-1 font-bold' : ''}`}>
                     {currentDate.date()}
-                  </span>
+                  </div>
 
                   {dailyEvents.length > 0 && (
                     <div className="mt-1 flex justify-center">

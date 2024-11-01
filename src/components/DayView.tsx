@@ -5,6 +5,7 @@ import { DndContext } from '@dnd-kit/core'
 import DraggableEvent from './DraggableEvent'
 import { CurrentTimeIndicator } from './CurrentTimeIndicator'
 import { HourBlock } from './HourBlock'
+import useTimeline from '../hooks/useTimeline'
 
 interface DayViewProps {
   date: Dayjs
@@ -14,15 +15,7 @@ interface DayViewProps {
 
 const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick }) => {
   const { currentDate, events } = useCalendarStore()
-  const [currentTime, setCurrentTime] = useState<Date>(new Date())
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 60000)
-
-    return () => clearInterval(interval)
-  }, [])
+  const { currentHour, currentMinutes, currentPosition } = useTimeline()
 
   const hours = Array.from({ length: 24 }, (_, i) => i)
 
@@ -30,10 +23,6 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick }) =>
     const selectedTime = dayjs(date).hour(hour).minute(0).second(0).toDate()
     onTimeClick(selectedTime)
   }
-
-  const currentHour = currentTime.getHours()
-  const currentMinutes = currentTime.getMinutes()
-  const currentPosition = ((currentHour * 60 + currentMinutes) / (24 * 60)) * 100
 
   const calculateEventPositions = (events: any) => {
     const filteredEvents = events.filter(
@@ -79,7 +68,9 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick }) =>
             </div>
           ))}
         </div>
-        <CurrentTimeIndicator currentPosition={currentPosition} currentHour={currentHour} currentMinutes={currentMinutes} />
+        {dayjs(currentDate).isSame(date, 'day') && (
+          <CurrentTimeIndicator currentPosition={currentPosition} currentHour={currentHour} currentMinutes={currentMinutes} />
+        )}
       </div>
     </DndContext>
   )
