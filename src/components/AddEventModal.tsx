@@ -237,7 +237,24 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ selectedTime, selectedEve
         <Form.Item label={<Timer size={14} />} className="mb-0">
           <Row gutter={24}>
             <Col xs={24} sm={18}>
-              <Form.Item name={['time', 'range']}>
+              <Form.Item
+                name={['time', 'range']}
+                rules={[
+                  {
+                    type: 'array',
+                    required: true,
+                    message: 'Vui lòng chọn thời gian',
+                  },
+                  {
+                    validator: (_, value) => {
+                      if (value && value[0] && value[1] && value[0].isSame(value[1])) {
+                        return Promise.reject(new Error('Thời gian sự kiện không phù hợp!'))
+                      }
+                      return Promise.resolve()
+                    },
+                  },
+                ]}
+              >
                 <DatePicker.RangePicker
                   className="w-full"
                   format={'DD-MM-YYYY HH:mm'}

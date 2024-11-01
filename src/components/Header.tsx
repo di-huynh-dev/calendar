@@ -5,7 +5,8 @@ import { Header } from 'antd/es/layout/layout'
 import icon from '../assets/icon-calendar.jpg'
 import dayjs from 'dayjs'
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns'
-import toast from 'react-hot-toast'
+import { useCallback, useState } from 'react'
+import { debounce } from 'lodash'
 
 interface HeaderComponentProps {
   onEventClick: (event: any) => void
@@ -13,6 +14,7 @@ interface HeaderComponentProps {
 
 const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
   const { viewMode, currentDate, setCurrentDate, setViewMode, goForward, goBackward, holidays, events } = useCalendarStore()
+  const [searchResults, setSearchResults] = useState<any[]>([])
 
   const today = new Date()
 
@@ -22,6 +24,19 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
 
   const days = Array.from({ length: 7 }, (_, i) => addDays(startDate, i))
 
+  const handleSearch = (value: string) => {
+    const trimmedValue = value.trim()
+    if (trimmedValue === '') {
+      setSearchResults([])
+      return
+    }
+    const results = events.filter((event) => event.title?.toLowerCase().includes(trimmedValue.toLowerCase()))
+    setSearchResults(results)
+    if (results.length > 0) {
+      setCurrentDate(dayjs(results[0].start))
+    }
+  }
+  const debouncedSearch = useCallback(debounce(handleSearch, 500), [handleSearch])
   const currentHolidays = holidays.filter((holiday) => dayjs(holiday.date).isSame(currentDate, 'day'))
 
   const currentAllDayEvents = events.filter(
@@ -84,19 +99,20 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
             </Select>
           </div>
           <div className="flex gap-2">
-            <Input.Search
+            <Select
+              showSearch
               placeholder="Tìm kiếm sự kiện"
-              onSearch={(value) => {
-                const searchResults = events.filter((event) => event.title?.toLowerCase().includes(value.toLowerCase()))
-                if (searchResults.length > 0) {
-                  setCurrentDate(dayjs(searchResults[0].start))
-                } else {
-                  toast.error('Không có sự kiện nào được tìm thấy')
-                }
-              }}
+              onSearch={debouncedSearch}
               style={{ width: 200 }}
+              filterOption={false}
               allowClear
-            />
+            >
+              {searchResults.map((event) => (
+                <Select.Option key={event.id} value={event.title}>
+                  <p onClick={() => onEventClick(event)}>{event.title}</p>
+                </Select.Option>
+              ))}
+            </Select>
           </div>
         </div>
 
