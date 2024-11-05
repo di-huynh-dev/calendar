@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useMemo } from 'react'
 import dayjs from 'dayjs'
 import { useCalendarStore } from '../store/useCalendarStore'
 import { Tooltip, Spin } from 'antd'
+import { useQuery } from '@tanstack/react-query'
 
 interface YearViewProps {
   year: number
@@ -11,27 +12,25 @@ interface YearViewProps {
 
 const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEventClick }) => {
   const { events, holidays, fetchHolidays } = useCalendarStore()
-  const [loadingHolidays, setLoadingHolidays] = useState(false)
 
-  useEffect(() => {
-    const loadHolidays = async () => {
-      setLoadingHolidays(true)
-      await fetchHolidays(year)
-      setLoadingHolidays(false)
+  const { isLoading: loadingHolidays } = useQuery({
+    queryKey: ['holidays', year],
+    queryFn: () => fetchHolidays(year),
+  })
+
+  const getEventsForDate = useMemo(() => {
+    const eventsForDate = (date: dayjs.Dayjs) => {
+      const dayEvents = events.filter((event) => dayjs(event.start).isSame(date, 'day'))
+      const dayHolidays = holidays
+        .filter((holiday) => dayjs(holiday.date).isSame(date, 'day'))
+        .map((holiday) => ({
+          ...holiday,
+          title: holiday.name,
+        }))
+      return [...dayEvents, ...dayHolidays]
     }
-    loadHolidays()
-  }, [year, fetchHolidays])
-
-  const getEventsForDate = (date: dayjs.Dayjs) => {
-    const dayEvents = events.filter((event) => dayjs(event.start).isSame(date, 'day'))
-    const dayHolidays = holidays
-      .filter((holiday) => dayjs(holiday.date).isSame(date, 'day'))
-      .map((holiday) => ({
-        ...holiday,
-        title: holiday.name,
-      }))
-    return [...dayEvents, ...dayHolidays]
-  }
+    return eventsForDate
+  }, [events, holidays])
 
   const months = Array.from({ length: 12 }, (_, monthIndex) => {
     const startOfMonth = dayjs(new Date(year, monthIndex, 1))
@@ -54,7 +53,7 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEv
               <Tooltip
                 key={currentDate.toString()}
                 title={
-                  <>
+                  <React.Fragment>
                     {dailyEvents.length > 0 ? (
                       dailyEvents.map((event) => (
                         <div key={event.id}>
@@ -69,7 +68,7 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEv
                     ) : (
                       <p>Không có sự kiện nào</p>
                     )}
-                  </>
+                  </React.Fragment>
                 }
                 color="#3b82f6"
               >
