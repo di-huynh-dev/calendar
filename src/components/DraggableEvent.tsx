@@ -4,17 +4,7 @@ import dayjs from 'dayjs'
 import { Video } from 'lucide-react'
 import { useCalendarStore } from '../store/useCalendarStore'
 import { Tooltip } from 'antd'
-
-interface Event {
-  id: string
-  title: string
-  start: Date
-  end: Date
-  width: string
-  left: string
-  colorTag: string
-  googleMeetLink: string
-}
+import { Event } from '../types/event.type'
 
 interface DraggableEventProps {
   event: Event
@@ -64,6 +54,9 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
         setNewStartTime(updatedStartTime)
       }
     }
+    return () => {
+      setIsDragging(false)
+    }
   }, [transform, event.start])
 
   const startTime = new Date(event.start)
@@ -94,17 +87,6 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
     }
   }
 
-  const calculatePositionFromTime = (time: Date): number => {
-    const hours = time.getHours()
-    const minutes = time.getMinutes()
-    return ((hours * 60 + minutes) / (24 * 60)) * 100
-  }
-
-  const calculateEventHeight = (start: Date, end: Date): number => {
-    const duration = (end.getTime() - start.getTime()) / (60 * 60 * 1000)
-    return (duration / 24) * 100
-  }
-
   const eventContent = (
     <div
       ref={setNodeRef}
@@ -125,7 +107,8 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
         borderRadius: '0.75rem',
         padding: '0.5rem',
         border: '1px solid #ffffff',
-        backgroundColor: event.colorTag || '#79a7f3',
+        zIndex: isDragging ? 10 : 1,
+        backgroundColor: isDragging ? 'rgba(121, 167, 243, 0.5)' : event.colorTag || '#79a7f3',
       }}
     >
       <div className={`text-md ${endTime.getTime() - startTime.getTime() < 31 * 60 * 1000 ? 'flex items-center gap-2 text-xs' : ''}`}>
@@ -164,3 +147,13 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
 }
 
 export default DraggableEvent
+const calculatePositionFromTime = (time: Date): number => {
+  const hours = time.getHours()
+  const minutes = time.getMinutes()
+  return ((hours * 60 + minutes) / (24 * 60)) * 100
+}
+
+const calculateEventHeight = (start: Date, end: Date): number => {
+  const duration = (end.getTime() - start.getTime()) / (60 * 60 * 1000)
+  return (duration / 24) * 100
+}
