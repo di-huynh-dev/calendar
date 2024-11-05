@@ -84,7 +84,7 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEv
                   </div>
 
                   {/* Display placeholders while loading */}
-                  {!loadingHolidays && dailyEvents.length > 0 && (
+                  {dailyEvents.length > 0 && (
                     <div className="mt-1 flex justify-center">
                       {dailyEvents.map((event, index) => (
                         <span
@@ -106,7 +106,7 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEv
     )
   })
   if (loadingHolidays) {
-    return <Spin />
+    return <Spin fullscreen tip="Đang tải dữ liệu..." />
   }
   return <div className="grid grid-cols-4 gap-x-20 gap-y-3 p-4">{months}</div>
 })
