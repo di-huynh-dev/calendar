@@ -16,6 +16,7 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEv
   const { isLoading: loadingHolidays } = useQuery({
     queryKey: ['holidays', year],
     queryFn: () => fetchHolidays(year),
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
   })
 
   const getEventsForDate = useMemo(() => {
@@ -104,12 +105,10 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEv
       </div>
     )
   })
-
-  return (
-    <Spin spinning={loadingHolidays} tip="Đang tải...">
-      <div className="grid grid-cols-4 gap-x-20 gap-y-3 p-4">{months}</div>
-    </Spin>
-  )
+  if (loadingHolidays) {
+    return <Spin />
+  }
+  return <div className="grid grid-cols-4 gap-x-20 gap-y-3 p-4">{months}</div>
 })
 
 export default YearView
