@@ -62,7 +62,9 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
           <h1 className="text-3xl p-3 font-bold text-center text-white">BÓC LỊCH ONLINE</h1>
         </div>
       </Header>
+
       <div className="fixed top-16 left-0 right-0 z-10 bg-white shadow-lg">
+        {/* Time navigation */}
         <div className="flex justify-between items-center mx-10 p-3">
           <div className="flex items-center gap-1">
             <Button className="rounded-lg bg-slate-100" onClick={goBackward}>
@@ -110,181 +112,221 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
           </div>
         </div>
 
+        {/* Display events of day, week */}
         {(viewMode === 'week' || viewMode === 'day') && (
-          <div className="grid grid-cols-8 gap-2 text-center items-center border-t-2 py-2">
-            <div className={`text-sm text-gray-600 border-r-2 ${viewMode === 'day' ? 'col-span-1' : ''}`}>GMT+07</div>
-            {viewMode === 'day' && (
-              <div className="col-span-1">
-                <div className={`text-lg ${isSameDay(dayjs(currentDate).toDate(), today) ? 'text-blue-600' : ''}`}>
-                  {format(dayjs(currentDate).toDate(), 'EEE')}
+          <>
+            {/* Display day of week */}
+            <div className="grid grid-cols-8 gap-2 text-center items-center border-t-2 py-2">
+              <div className={`text-sm text-gray-600 border-r-2 ${viewMode === 'day' ? 'col-span-1' : ''}`}>GMT+07</div>
+              {viewMode === 'day' && (
+                <div className="col-span-1">
+                  <div className={`text-lg ${isSameDay(dayjs(currentDate).toDate(), today) ? 'text-blue-600' : ''}`}>
+                    {format(dayjs(currentDate).toDate(), 'EEE')}
+                  </div>
+                  <div
+                    className={`text-2xl ${
+                      isSameDay(dayjs(currentDate).toDate(), today)
+                        ? 'bg-blue-600 text-white rounded-full w-10 h-10 mx-auto flex items-center justify-center'
+                        : 'w-10 h-10 mx-auto'
+                    }`}
+                  >
+                    {format(dayjs(currentDate).toDate(), 'd')}
+                  </div>
                 </div>
-                <div
-                  className={`text-2xl ${
-                    isSameDay(dayjs(currentDate).toDate(), today)
-                      ? 'bg-blue-600 text-white rounded-full w-10 h-10 mx-auto flex items-center justify-center'
-                      : 'w-10 h-10 mx-auto'
-                  }`}
-                >
-                  {format(dayjs(currentDate).toDate(), 'd')}
+              )}
+              {viewMode === 'week' &&
+                days.map((day, i) => {
+                  return (
+                    <div key={i} className="text-center">
+                      <div className={`text-lg ${isSameDay(day, today) ? 'text-blue-600 font-bold' : ''}`}>{format(day, 'EEE')}</div>
+                      <div
+                        className={`text-2xl ${
+                          isSameDay(day, today)
+                            ? 'bg-blue-500 text-white rounded-full w-10 h-10 mx-auto flex items-center justify-center'
+                            : 'w-10 h-10 mx-auto'
+                        }`}
+                      >
+                        {format(day, 'd')}
+                      </div>
+                    </div>
+                  )
+                })}
+
+              {viewMode === 'day' && (
+                <div className="mx-10 col-span-6">
+                  <div className="grid gap-2 grid-cols-4">
+                    {currentHolidays.map((holiday) => (
+                      <button key={holiday.id} className="p-2 border border-dashed rounded-lg bg-green-100 w-full">
+                        <span className="text-green-500">{holiday.name}</span>
+                      </button>
+                    ))}
+                    {longEvents.map((event) => {
+                      return (
+                        <Tooltip
+                          title={
+                            <>
+                              <p className="text-white">{event.title ? event.title : '(Không có tiêu đề)'}</p>
+                              <p className="text-white text-xs">
+                                {dayjs(event.start).format('DD/MM/YYYY HH:mm')} - {dayjs(event.end).format('DD/MM/YYYY HH:mm')}
+                              </p>
+                            </>
+                          }
+                          color="blue"
+                          placement="bottomRight"
+                        >
+                          <button
+                            key={event.id}
+                            style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
+                            className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full text-xs"
+                            onClick={() => onEventClick(event)}
+                          >
+                            <p className="text-white">
+                              {event.title
+                                ? event.title.length > 35
+                                  ? event.title.slice(0, 35) + '...'
+                                  : event.title
+                                : '(Không có tiêu đề)'}
+                              {dayjs(event.start).isSame(currentDate, 'day') && ` (Bắt đầu: ${dayjs(event.start).format('HH:mm')})`}
+                              {dayjs(event.end).isSame(currentDate, 'day') && ` (Kết thúc: ${dayjs(event.end).format('HH:mm')})`}
+                              {dayjs(event.start).isBefore(currentDate, 'day') &&
+                                dayjs(event.end).isAfter(currentDate, 'day') &&
+                                ' (Cả ngày)'}
+                            </p>
+                          </button>
+                        </Tooltip>
+                      )
+                    })}
+                    {currentAllDayEvents.map((event) => {
+                      return (
+                        <Tooltip
+                          title={
+                            <>
+                              <p className="text-white">{event.title ? event.title : '(Không có tiêu đề)'}</p>
+                              <p className="text-white text-xs">
+                                {dayjs(event.start).format('DD/MM/YYYY HH:mm')} - {dayjs(event.end).format('DD/MM/YYYY HH:mm')}
+                              </p>
+                            </>
+                          }
+                          color="blue"
+                          placement="bottomRight"
+                        >
+                          <button
+                            key={event.id}
+                            style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
+                            className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full text-xs"
+                            onClick={() => onEventClick(event)}
+                          >
+                            <p className="text-white">
+                              {event.title
+                                ? event.title.length > 35
+                                  ? event.title.slice(0, 35) + '...'
+                                  : event.title
+                                : '(Không có tiêu đề)'}
+                            </p>
+                          </button>
+                        </Tooltip>
+                      )
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
-            {viewMode === 'week' &&
-              days.map((day, i) => {
-                const dayHolidays = holidays.filter((holiday) => isSameDay(day, new Date(holiday.date)))
-                const dayAllDayEvents = events.filter((event) => isSameDay(day, new Date(event.start)) && event.allDay)
-                const longEvents = events.filter((event) => {
-                  const start = dayjs(event.start)
-                  const end = dayjs(event.end)
+              )}
+            </div>
+
+            {/* Display events of day, week */}
+            {viewMode === 'week' && (
+              <div className="grid grid-cols-8 gap-2 text-center items-center border-t-2 py-2">
+                <div className={`text-sm text-gray-600 border-r-2 col-span-1`}></div>
+                {days.map((day, i) => {
+                  const dayHolidays = holidays.filter((holiday) => isSameDay(day, new Date(holiday.date)))
+                  const dayAllDayEvents = events.filter((event) => isSameDay(day, new Date(event.start)) && event.allDay)
+                  const longEvents = events.filter((event) => {
+                    const start = dayjs(event.start)
+                    const end = dayjs(event.end)
+
+                    return (
+                      !event.allDay &&
+                      !start.isSame(end, 'day') &&
+                      (start.isSame(day, 'day') || end.isSame(day, 'day') || (start.isBefore(day, 'day') && end.isAfter(day, 'day')))
+                    )
+                  })
 
                   return (
-                    !event.allDay &&
-                    !start.isSame(end, 'day') &&
-                    (start.isSame(day, 'day') || end.isSame(day, 'day') || (start.isBefore(day, 'day') && end.isAfter(day, 'day')))
-                  )
-                })
-
-                return (
-                  <div key={i} className="text-center">
-                    <div className={`text-lg ${isSameDay(day, today) ? 'text-blue-600 font-bold' : ''}`}>{format(day, 'EEE')}</div>
-                    <div
-                      className={`text-2xl ${
-                        isSameDay(day, today)
-                          ? 'bg-blue-500 text-white rounded-full w-10 h-10 mx-auto flex items-center justify-center'
-                          : 'w-10 h-10 mx-auto'
-                      }`}
-                    >
-                      {format(day, 'd')}
-                    </div>
-                    <div className="space-y-1 overflow-y-auto" style={{ maxHeight: '48px' }}>
-                      {dayHolidays.map((holiday) => (
-                        <div key={holiday.name} className="p-2 border border-dashed rounded-lg bg-green-100 text-green-500 text-xs">
-                          {holiday.name}
-                        </div>
-                      ))}
-                      {longEvents.map((event) => {
-                        return (
-                          <Tooltip
-                            title={
-                              <>
-                                <p className="text-white">{event.title ? event.title : '(Không có tiêu đề)'}</p>
-                                <p className="text-white text-xs">
-                                  {dayjs(event.start).format('DD/MM/YYYY HH:mm')} - {dayjs(event.end).format('DD/MM/YYYY HH:mm')}
-                                </p>
-                              </>
-                            }
-                            color="blue"
-                            placement="bottomRight"
-                          >
-                            <button
-                              key={event.id}
-                              style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
-                              className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full"
-                              onClick={() => onEventClick(event)}
+                    <div key={i} className="text-center">
+                      <div className="overflow-y-auto" style={{ maxHeight: '40px' }}>
+                        {dayHolidays.map((holiday) => (
+                          <div key={holiday.name} className="p-2 border border-dashed rounded-lg bg-green-100 text-green-500 text-xs">
+                            {holiday.name}
+                          </div>
+                        ))}
+                        {longEvents.map((event) => {
+                          return (
+                            <Tooltip
+                              title={
+                                <>
+                                  <p className="text-white">{event.title ? event.title : '(Không có tiêu đề)'}</p>
+                                  <p className="text-white text-xs">
+                                    {dayjs(event.start).format('DD/MM/YYYY HH:mm')} - {dayjs(event.end).format('DD/MM/YYYY HH:mm')}
+                                  </p>
+                                </>
+                              }
+                              color="blue"
+                              placement="bottomRight"
                             >
-                              <p className="text-white">
-                                {event.title
-                                  ? event.title.length > 25
-                                    ? event.title.slice(0, 25) + '...'
-                                    : event.title
-                                  : '(Không có tiêu đề)'}
-                              </p>
-                            </button>
-                          </Tooltip>
-                        )
-                      })}
-                      {dayAllDayEvents.map((event) => (
-                        <button
-                          key={event.id}
-                          className="p-2 border border-dashed rounded-lg bg-blue-100 w-full text-xs"
-                          onClick={() => onEventClick(event)}
-                        >
-                          <span className="text-blue-500">{event.title ? event.title : '(Không có tiêu đề)'}</span>
-                        </button>
-                      ))}
+                              <button
+                                key={event.id}
+                                style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
+                                className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full"
+                                onClick={() => onEventClick(event)}
+                              >
+                                <p className="text-white">
+                                  {event.title
+                                    ? event.title.length > 25
+                                      ? event.title.slice(0, 25) + '...'
+                                      : event.title
+                                    : '(Không có tiêu đề)'}
+                                </p>
+                              </button>
+                            </Tooltip>
+                          )
+                        })}
+                        {dayAllDayEvents.map((event) => {
+                          return (
+                            <Tooltip
+                              title={
+                                <>
+                                  <p className="text-white">{event.title ? event.title : '(Không có tiêu đề)'}</p>
+                                  <p className="text-white text-xs">
+                                    {dayjs(event.start).format('DD/MM/YYYY HH:mm')} - {dayjs(event.end).format('DD/MM/YYYY HH:mm')}
+                                  </p>
+                                </>
+                              }
+                              color="blue"
+                              placement="bottomRight"
+                            >
+                              <button
+                                key={event.id}
+                                style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
+                                className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full text-xs"
+                                onClick={() => onEventClick(event)}
+                              >
+                                <p className="text-white">
+                                  {event.title
+                                    ? event.title.length > 35
+                                      ? event.title.slice(0, 35) + '...'
+                                      : event.title
+                                    : '(Không có tiêu đề)'}
+                                </p>
+                              </button>
+                            </Tooltip>
+                          )
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )
-              })}
-            {viewMode === 'day' && (
-              <div className="mx-10 col-span-6">
-                <div className="grid gap-2 grid-cols-4">
-                  {currentHolidays.map((holiday) => (
-                    <button key={holiday.id} className="p-2 border border-dashed rounded-lg bg-green-100 w-full">
-                      <span className="text-green-500">{holiday.name}</span>
-                    </button>
-                  ))}
-                  {longEvents.map((event) => {
-                    return (
-                      <Tooltip
-                        title={
-                          <>
-                            <p className="text-white">{event.title ? event.title : '(Không có tiêu đề)'}</p>
-                            <p className="text-white text-xs">
-                              {dayjs(event.start).format('DD/MM/YYYY HH:mm')} - {dayjs(event.end).format('DD/MM/YYYY HH:mm')}
-                            </p>
-                          </>
-                        }
-                        color="blue"
-                        placement="bottomRight"
-                      >
-                        <button
-                          key={event.id}
-                          style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
-                          className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full text-xs"
-                          onClick={() => onEventClick(event)}
-                        >
-                          <p className="text-white">
-                            {event.title
-                              ? event.title.length > 35
-                                ? event.title.slice(0, 35) + '...'
-                                : event.title
-                              : '(Không có tiêu đề)'}
-                            {dayjs(event.start).isSame(currentDate, 'day') && ` (Bắt đầu: ${dayjs(event.start).format('HH:mm')})`}
-                            {dayjs(event.end).isSame(currentDate, 'day') && ` (Kết thúc: ${dayjs(event.end).format('HH:mm')})`}
-                            {dayjs(event.start).isBefore(currentDate, 'day') &&
-                              dayjs(event.end).isAfter(currentDate, 'day') &&
-                              ' (Cả ngày)'}
-                          </p>
-                        </button>
-                      </Tooltip>
-                    )
-                  })}
-                  {currentAllDayEvents.map((event) => {
-                    return (
-                      <Tooltip
-                        title={
-                          <>
-                            <p className="text-white">{event.title ? event.title : '(Không có tiêu đề)'}</p>
-                            <p className="text-white text-xs">
-                              {dayjs(event.start).format('DD/MM/YYYY HH:mm')} - {dayjs(event.end).format('DD/MM/YYYY HH:mm')}
-                            </p>
-                          </>
-                        }
-                        color="blue"
-                        placement="bottomRight"
-                      >
-                        <button
-                          key={event.id}
-                          style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
-                          className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full text-xs"
-                          onClick={() => onEventClick(event)}
-                        >
-                          <p className="text-white">
-                            {event.title
-                              ? event.title.length > 35
-                                ? event.title.slice(0, 35) + '...'
-                                : event.title
-                              : '(Không có tiêu đề)'}
-                          </p>
-                        </button>
-                      </Tooltip>
-                    )
-                  })}
-                </div>
+                  )
+                })}
               </div>
             )}
-          </div>
+          </>
         )}
       </div>
     </Layout>
