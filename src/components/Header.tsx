@@ -111,10 +111,10 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
         </div>
 
         {(viewMode === 'week' || viewMode === 'day') && (
-          <div className="grid grid-cols-8 gap-2 text-center mb-2 items-center border-t-2 py-2">
-            <div className="text-sm text-gray-600 border-r-2">GMT+07</div>
+          <div className="grid grid-cols-8 gap-2 text-center items-center border-t-2 py-2">
+            <div className={`text-sm text-gray-600 border-r-2 ${viewMode === 'day' ? 'col-span-1' : ''}`}>GMT+07</div>
             {viewMode === 'day' && (
-              <div>
+              <div className="col-span-1">
                 <div className={`text-lg ${isSameDay(dayjs(currentDate).toDate(), today) ? 'text-blue-600' : ''}`}>
                   {format(dayjs(currentDate).toDate(), 'EEE')}
                 </div>
@@ -184,8 +184,8 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                             >
                               <p className="text-white">
                                 {event.title
-                                  ? event.title.length > 10
-                                    ? event.title.slice(0, 5) + '...'
+                                  ? event.title.length > 25
+                                    ? event.title.slice(0, 25) + '...'
                                     : event.title
                                   : '(Không có tiêu đề)'}
                               </p>
@@ -207,8 +207,8 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                 )
               })}
             {viewMode === 'day' && (
-              <div className="mx-10">
-                <div className="grid grid-flow-col gap-2">
+              <div className="mx-10 col-span-6">
+                <div className="grid gap-2 grid-cols-4">
                   {currentHolidays.map((holiday) => (
                     <button key={holiday.id} className="p-2 border border-dashed rounded-lg bg-green-100 w-full">
                       <span className="text-green-500">{holiday.name}</span>
@@ -235,24 +235,52 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                           onClick={() => onEventClick(event)}
                         >
                           <p className="text-white">
-                            {event.title ? (event.title.length > 10 ? event.title.slice(0, 5) + '...' : event.title) : '(Không có tiêu đề)'}
+                            {event.title
+                              ? event.title.length > 35
+                                ? event.title.slice(0, 35) + '...'
+                                : event.title
+                              : '(Không có tiêu đề)'}
+                            {dayjs(event.start).isSame(currentDate, 'day') && ` (Bắt đầu: ${dayjs(event.start).format('HH:mm')})`}
+                            {dayjs(event.end).isSame(currentDate, 'day') && ` (Kết thúc: ${dayjs(event.end).format('HH:mm')})`}
+                            {dayjs(event.start).isBefore(currentDate, 'day') &&
+                              dayjs(event.end).isAfter(currentDate, 'day') &&
+                              ' (Cả ngày)'}
                           </p>
                         </button>
                       </Tooltip>
                     )
                   })}
-                  {currentAllDayEvents.map((event) => (
-                    <button
-                      key={event.id}
-                      style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
-                      className="p-2 border border-dashed rounded-lg text-xs"
-                      onClick={() => onEventClick(event)}
-                    >
-                      <p className="text-white">
-                        {event.title ? (event.title.length > 10 ? event.title.slice(0, 5) + '...' : event.title) : '(Không có tiêu đề)'}
-                      </p>
-                    </button>
-                  ))}
+                  {currentAllDayEvents.map((event) => {
+                    return (
+                      <Tooltip
+                        title={
+                          <>
+                            <p className="text-white">{event.title ? event.title : '(Không có tiêu đề)'}</p>
+                            <p className="text-white text-xs">
+                              {dayjs(event.start).format('DD/MM/YYYY HH:mm')} - {dayjs(event.end).format('DD/MM/YYYY HH:mm')}
+                            </p>
+                          </>
+                        }
+                        color="blue"
+                        placement="bottomRight"
+                      >
+                        <button
+                          key={event.id}
+                          style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
+                          className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full text-xs"
+                          onClick={() => onEventClick(event)}
+                        >
+                          <p className="text-white">
+                            {event.title
+                              ? event.title.length > 35
+                                ? event.title.slice(0, 35) + '...'
+                                : event.title
+                              : '(Không có tiêu đề)'}
+                          </p>
+                        </button>
+                      </Tooltip>
+                    )
+                  })}
                 </div>
               </div>
             )}

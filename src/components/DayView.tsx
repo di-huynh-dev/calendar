@@ -109,7 +109,9 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick }) =>
             </div>
           ))}
         </div>
-        <CurrentTimeIndicator currentPosition={currentPosition} currentHour={currentHour} currentMinutes={currentMinutes} />
+        {isSameDay(dayjs(currentDate).toDate(), new Date()) && (
+          <CurrentTimeIndicator currentPosition={currentPosition} currentHour={currentHour} currentMinutes={currentMinutes} />
+        )}
       </div>
     </DndContext>
   )
