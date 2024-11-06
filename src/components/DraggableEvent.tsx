@@ -107,8 +107,9 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
         borderRadius: '0.75rem',
         padding: '0.5rem',
         border: '1px solid #ffffff',
-        zIndex: isDragging ? 10 : 1,
+        zIndex: isDragging ? 8 : 1,
         backgroundColor: isDragging ? 'rgba(121, 167, 243, 0.5)' : event.colorTag || '#79a7f3',
+        boxShadow: isDragging ? '0px 4px 12px rgba(19, 19, 19, 0.15)' : 'none',
       }}
     >
       <div className={`text-md ${endTime.getTime() - startTime.getTime() < 31 * 60 * 1000 ? 'flex items-center gap-2 text-xs' : ''}`}>
