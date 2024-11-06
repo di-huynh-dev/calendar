@@ -58,12 +58,16 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEv
                     {dailyEvents.length > 0 ? (
                       dailyEvents.map((event) => (
                         <div key={event.id}>
-                          <button onClick={() => onEventClick(event)}>
-                            <p>
-                              {event.title || '(Không có tiêu đề)'} {'start' in event ? `(${dayjs(event.start).format('HH:mm A')}` : ''}{' '}
-                              {'end' in event ? `- ${dayjs(event.end).format('HH:mm A')}` : ''})
-                            </p>
-                          </button>
+                          {'start' in event ? (
+                            <button onClick={() => onEventClick(event)}>
+                              <p>
+                                {event.title || '(Không có tiêu đề)'} {`(${dayjs(event.start).format('HH:mm A')}`}
+                                {'end' in event ? `- ${dayjs(event.end).format('HH:mm A')})` : ''}
+                              </p>
+                            </button>
+                          ) : (
+                            <p>{event.title || '(Không có tiêu đề)'} (Ngày lễ)</p>
+                          )}
                         </div>
                       ))
                     ) : (
@@ -79,7 +83,7 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEv
                   }`}
                   onClick={() => onDateSelect(currentDate.toDate())}
                 >
-                  <div className={`inline-block ${currentDate.isSame(dayjs(), 'day') ? 'text-blue-500 border-1 font-bold' : ''}`}>
+                  <div className={`inline-block ${currentDate.isSame(dayjs(), 'day') ? 'text-blue-500 border-1 font-bold ' : ''}`}>
                     {currentDate.date()}
                   </div>
 
