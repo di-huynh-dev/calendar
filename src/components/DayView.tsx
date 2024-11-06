@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
 import { useCalendarStore } from '../store/useCalendarStore'
 import { DndContext } from '@dnd-kit/core'
@@ -10,16 +10,104 @@ import { isSameDay } from 'date-fns'
 
 interface DayViewProps {
   date: Dayjs
-  onTimeClick: (time: Date) => void
+  onTimeClick: (time: { start: Date; end: Date }) => void
   onEventClick: (event: any) => void
+  isModalOpen: boolean
 }
 
-const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick }) => {
+const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick, isModalOpen }) => {
   const { currentDate, events } = useCalendarStore()
-
   const { currentHour, currentMinutes, currentPosition } = useTimeline()
-  const [draggedEvent, setDraggedEvent] = useState<any>(null)
 
+  const [selectedBlocks, setSelectedBlocks] = useState<{ hour: number; quarter: number }[]>([])
+  const [draggedEvent, setDraggedEvent] = useState<any>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState<{ hour: number; quarter: number } | null>(null)
+
+  const hours = Array.from({ length: 24 }, (_, i) => i)
+
+  // Clear selected blocks when modal is closed
+  useEffect(() => {
+    if (!isModalOpen) {
+      setSelectedBlocks([])
+    }
+  }, [isModalOpen])
+
+  /* Handle mouse select events start */
+  const handleMouseDown = (hour: number, quarter: number) => {
+    setSelectedBlocks([{ hour, quarter }])
+    setDragStart({ hour, quarter })
+    setIsDragging(true)
+  }
+
+  const handleMouseEnter = (hour: number, quarter: number) => {
+    if (isDragging && dragStart) {
+      const start = dragStart
+      const end = { hour, quarter }
+
+      const blocks = calculateSelectedBlocks(start, end)
+      setSelectedBlocks(blocks)
+    }
+  }
+
+  const calculateSelectedBlocks = (start: { hour: number; quarter: number }, end: { hour: number; quarter: number }) => {
+    const blocks: { hour: number; quarter: number }[] = []
+
+    const startHour = start.hour
+    const startQuarter = start.quarter
+    const endHour = end.hour
+    const endQuarter = end.quarter
+
+    // If the start and end time are in the same hour
+    if (startHour === endHour) {
+      for (let quarter = startQuarter; quarter <= endQuarter; quarter++) {
+        blocks.push({ hour: startHour, quarter })
+      }
+    } else {
+      // Add blocks from the start time to the end of that hour
+      for (let quarter = startQuarter; quarter < 4; quarter++) {
+        blocks.push({ hour: startHour, quarter })
+      }
+
+      // Add blocks for the whole hours in between
+      for (let hour = startHour + 1; hour < endHour; hour++) {
+        for (let quarter = 0; quarter < 4; quarter++) {
+          blocks.push({ hour, quarter })
+        }
+      }
+
+      // Add blocks from the beginning of the last hour to the end time
+      for (let quarter = 0; quarter <= endQuarter; quarter++) {
+        blocks.push({ hour: endHour, quarter })
+      }
+    }
+
+    return blocks
+  }
+
+  const handleMouseUp = () => {
+    if (isDragging) {
+      setIsDragging(false)
+      setDragStart(null)
+
+      const startTime = dayjs(date)
+        .hour(selectedBlocks[0].hour)
+        .minute(selectedBlocks[0].quarter * 15)
+        .second(0)
+        .toDate()
+
+      const endTime = dayjs(date)
+        .hour(selectedBlocks[selectedBlocks.length - 1].hour)
+        .minute((selectedBlocks[selectedBlocks.length - 1].quarter + 1) * 15)
+        .second(0)
+        .toDate()
+
+      onTimeClick({ start: startTime, end: endTime })
+    }
+  }
+  /* Handle mouse select events end */
+
+  /* Handle drag event start */
   const handleDragStart = (event: any) => {
     setDraggedEvent(event)
   }
@@ -27,14 +115,9 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick }) =>
   const handleDragEnd = () => {
     setDraggedEvent(null)
   }
+  /* Handle drag event end */
 
-  const hours = Array.from({ length: 24 }, (_, i) => i)
-
-  const handleClick = (hour: number) => {
-    const selectedTime = dayjs(date).hour(hour).minute(0).second(0).toDate()
-    onTimeClick(selectedTime)
-  }
-
+  /* Calculate event position start */
   const calculateEventPositions = (events: any) => {
     const filteredEvents = events.filter((event: any) => {
       const isMultiDay = !dayjs(event.start).isSame(event.end, 'day')
@@ -82,14 +165,22 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick }) =>
 
     return positions
   }
+
   const eventPositions = calculateEventPositions(events.filter((event) => dayjs(event.start).isSame(date, 'day')))
+  /* Calculate event position end */
 
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="col-span-7 relative">
+      <div className="col-span-7 relative" onMouseUp={handleMouseUp}>
         {hours.map((hour) => (
-          <HourBlock key={hour} hour={hour} onClick={handleClick} />
+          <HourBlock
+            key={hour}
+            onMouseDown={(quarter) => handleMouseDown(hour, quarter)}
+            onMouseEnter={(quarter) => handleMouseEnter(hour, quarter)}
+            isHighlighted={selectedBlocks.filter((block) => block.hour === hour).map((block) => block.quarter)}
+          />
         ))}
+
         <div className="flex">
           {eventPositions.map((event: any) => (
             <div key={event.id}>
@@ -109,6 +200,7 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick }) =>
             </div>
           ))}
         </div>
+
         {isSameDay(dayjs(currentDate).toDate(), new Date()) && (
           <CurrentTimeIndicator currentPosition={currentPosition} currentHour={currentHour} currentMinutes={currentMinutes} />
         )}

@@ -13,8 +13,13 @@ import toast from 'react-hot-toast'
 import { useEffect, useRef, useState } from 'react'
 import useReactQuill from '../hooks/useReactQuill'
 
+type SelectedTime = {
+  start: Date
+  end: Date
+}
+
 interface AddEventModalProps {
-  selectedTime: Date | null
+  selectedTime: SelectedTime | null
   onClose: () => void
   selectedEvent: any
 }
@@ -45,7 +50,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ selectedTime, selectedEve
     } else {
       form.setFieldsValue({
         time: {
-          range: selectedTime ? [dayjs(selectedTime), dayjs(selectedTime).add(1, 'hour')] : undefined,
+          range: selectedTime ? [dayjs(selectedTime.start), dayjs(selectedTime.end)] : undefined,
         },
         description: '',
       })
@@ -280,7 +285,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ selectedTime, selectedEve
                       })
                     } else {
                       const initialRange = selectedTime
-                        ? [dayjs(selectedTime), dayjs(selectedTime).add(1, 'hour')]
+                        ? [dayjs(selectedTime.start), dayjs(selectedTime.start).add(1, 'hour')]
                         : [dayjs(), dayjs().add(1, 'hour')]
                       form.setFieldsValue({
                         time: {

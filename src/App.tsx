@@ -13,13 +13,17 @@ import YearView from './components/YearView'
 import moment from 'moment-timezone'
 dayjs.extend(isSameOrAfter)
 
+type SelectedTime = {
+  start: Date
+  end: Date
+}
 const Calendar: React.FC = () => {
   const { viewMode, currentDate, timeZone } = useCalendarStore()
-  const [selectedTime, setSelectedTime] = useState<Date | null>(null)
+  const [selectedTime, setSelectedTime] = useState<SelectedTime | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState(null)
 
-  const handleTimeClick = (time: Date) => {
+  const handleTimeClick = (time: { start: Date; end: Date }) => {
     setSelectedTime(time)
     setSelectedEvent(null)
     setIsModalOpen(true)
@@ -38,7 +42,8 @@ const Calendar: React.FC = () => {
   }
 
   const handleDateSelect = (date: any) => {
-    setSelectedTime(dayjs(date).toDate())
+    const selectedDate = dayjs(date).toDate()
+    setSelectedTime({ start: selectedDate, end: selectedDate })
     setSelectedEvent(null)
     setIsModalOpen(true)
   }
@@ -70,9 +75,11 @@ const Calendar: React.FC = () => {
           </div>
         )}
 
-        {viewMode === 'day' && <DayView date={currentDate} onTimeClick={handleTimeClick} onEventClick={handleEventClick} />}
+        {viewMode === 'day' && (
+          <DayView date={currentDate} onTimeClick={handleTimeClick} onEventClick={handleEventClick} isModalOpen={isModalOpen} />
+        )}
 
-        {viewMode === 'week' && <WeekView date={currentDate} onTimeClick={handleTimeClick} onEventClick={handleEventClick} />}
+        {/* {viewMode === 'week' && <WeekView date={currentDate} onTimeClick={handleTimeClick} onEventClick={handleEventClick} />} */}
 
         {viewMode === 'month' && <MonthView startOfMonth={startOfMonth} onDateSelect={handleDateSelect} onEventClick={handleEventClick} />}
 

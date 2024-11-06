@@ -1,5 +1,5 @@
 import React from 'react'
-import { Calendar, Tooltip } from 'antd'
+import { Calendar } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import { useCalendarStore } from '../store/useCalendarStore'
 
