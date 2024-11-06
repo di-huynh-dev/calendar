@@ -84,9 +84,7 @@ const WeekView: React.FC<WeekViewProps> = ({ date, onTimeClick, onEventClick }) 
                     return (
                       <div
                         key={hourIndex}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                        }}
+                        onClick={() => handleClick(hourIndex)}
                         className={`border-t h-20 ${isSameDay(currentDay, new Date()) ? 'bg-blue-50' : ''}`}
                       >
                         <div className="flex">
@@ -98,7 +96,6 @@ const WeekView: React.FC<WeekViewProps> = ({ date, onTimeClick, onEventClick }) 
                                   key={event.id}
                                   event={event}
                                   style={{
-                                    position: 'absolute',
                                     top: event.top,
                                     left: event.left,
                                     height: event.height,

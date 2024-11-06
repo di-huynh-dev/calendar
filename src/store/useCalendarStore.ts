@@ -16,6 +16,8 @@ interface Holiday {
 interface CalendarStore {
   viewMode: ViewMode
   currentDate: Dayjs
+  timeZone: string
+  setTimeZone: (timeZone: string) => void
   holidays: { id: string; date: string; name: string; colorTag: string }[]
   fetchHolidays: (year: number) => void
   setViewMode: (mode: ViewMode) => void
@@ -44,6 +46,8 @@ export const useCalendarStore = create<CalendarStore>()(
   persist(
     (set) => ({
       viewMode: 'day',
+      timeZone: 'Asia/Ho_Chi_Minh',
+      setTimeZone: (timeZone) => set({ timeZone }),
       events: [],
       currentDate: dayjs() as Dayjs,
       holidays: getCurrentYearHolidays(),

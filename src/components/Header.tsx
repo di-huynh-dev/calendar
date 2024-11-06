@@ -7,16 +7,26 @@ import dayjs from 'dayjs'
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns'
 import { useCallback, useState } from 'react'
 import { debounce } from 'lodash'
-
+import moment from 'moment-timezone'
 interface HeaderComponentProps {
   onEventClick: (event: any) => void
 }
 
 const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
-  const { viewMode, currentDate, setCurrentDate, setViewMode, goForward, goBackward, holidays, events } = useCalendarStore()
+  const { viewMode, currentDate, setCurrentDate, setViewMode, goForward, goBackward, holidays, events, timeZone, setTimeZone } =
+    useCalendarStore()
   const [searchResults, setSearchResults] = useState<any[]>([])
 
   const today = new Date()
+
+  const [selectedTimeZone, setSelectedTimeZone] = useState('Asia/Ho_Chi_Minh')
+
+  const timeZones = moment.tz.names()
+
+  const handleTimeZoneChange = (value: string) => {
+    setSelectedTimeZone(value)
+    setTimeZone(value)
+  }
 
   const startDate = startOfWeek(dayjs(currentDate).toDate(), {
     weekStartsOn: 0,
@@ -59,13 +69,13 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
       <Header className="fixed top-0 left-0 right-0 z-10 transition-opacity duration-300 bg-[#142433]">
         <div className="flex justify-center items-center">
           <img src={icon} alt="Icon" className="w-10 h-10" />
-          <h1 className="text-3xl p-3 font-bold text-center text-white">BÓC LỊCH ONLINE</h1>
+          <h1 className="md:text-3xl text-lg p-3 font-bold text-center text-white">BÓC LỊCH ONLINE</h1>
         </div>
       </Header>
 
       <div className="fixed top-16 left-0 right-0 z-10 bg-white shadow-lg">
         {/* Time navigation */}
-        <div className="flex justify-between items-center mx-10 p-3">
+        <div className="flex justify-between items-center lg:mx-10 p-3">
           <div className="flex items-center gap-1">
             <Button className="rounded-lg bg-slate-100" onClick={goBackward}>
               <ChevronLeft />
@@ -117,7 +127,26 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
           <>
             {/* Display day of week */}
             <div className="grid grid-cols-8 gap-2 text-center items-center border-t-2 py-2">
-              <div className={`text-sm text-gray-600 border-r-2 ${viewMode === 'day' ? 'col-span-1' : ''}`}>GMT+07</div>
+              <div
+                className={`flex justify-around items-center text-sm text-gray-600 border-r-2 ${viewMode === 'day' ? 'col-span-1' : ''}`}
+              >
+                <p>GMT+07</p>
+                {/* Timezone */}
+                <Select
+                  size="small"
+                  defaultValue={'GMT +07'}
+                  showSearch
+                  value={selectedTimeZone}
+                  onChange={(value) => handleTimeZoneChange(value)}
+                  className="w-24"
+                >
+                  {timeZones.map((zone) => (
+                    <Select.Option key={zone} value={zone}>
+                      {zone}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
               {viewMode === 'day' && (
                 <div className="col-span-1">
                   <div className={`text-lg ${isSameDay(dayjs(currentDate).toDate(), today) ? 'text-blue-600' : ''}`}>

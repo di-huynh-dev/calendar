@@ -66,7 +66,7 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEv
                               </p>
                             </button>
                           ) : (
-                            <p>{event.title || '(Không có tiêu đề)'} (Ngày lễ)</p>
+                            <p>{event.title || '(Không có tiêu đề)'} </p>
                           )}
                         </div>
                       ))
@@ -112,7 +112,7 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEv
   if (loadingHolidays) {
     return <Spin fullscreen tip="Đang tải dữ liệu..." />
   }
-  return <div className="grid grid-cols-4 gap-x-20 gap-y-3 p-4">{months}</div>
+  return <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-x-20 gap-y-3 p-4">{months}</div>
 })
 
 export default YearView
