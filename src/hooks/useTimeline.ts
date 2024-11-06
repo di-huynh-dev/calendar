@@ -12,9 +12,20 @@ const useTimeline = () => {
       setTimeout(update, delay)
     }
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        setCurrentTime(new Date())
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
     const timeoutId = setTimeout(update, 60000)
 
-    return () => clearTimeout(timeoutId)
+    return () => {
+      clearTimeout(timeoutId)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
   }, [])
 
   const currentHour = currentTime.getHours()

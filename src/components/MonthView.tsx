@@ -51,7 +51,7 @@ const MonthView: React.FC<MonthViewProps> = ({ startOfMonth, onEventClick, onDat
     <div className="col-span-7">
       <Calendar
         value={startOfMonth}
-        dateCellRender={dateCellRender}
+        cellRender={dateCellRender}
         fullscreen
         headerRender={() => null}
         onSelect={onDateSelect}
