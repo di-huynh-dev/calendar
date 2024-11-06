@@ -1,5 +1,5 @@
 import React from 'react'
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 import { useCalendarStore } from '../store/useCalendarStore'
 import { startOfWeek, addDays, isSameDay } from 'date-fns'
 import { DndContext } from '@dnd-kit/core'
@@ -10,6 +10,7 @@ import { CurrentTimeIndicator } from './CurrentTimeIndicator'
 interface WeekViewProps {
   onTimeClick: (time: Date) => void
   onEventClick: (event: any) => void
+  date: Dayjs
 }
 
 const calculateEventPositions = (events: any, overlapOffset: number = 20) => {
@@ -57,10 +58,15 @@ const calculateEventPositions = (events: any, overlapOffset: number = 20) => {
   return positions
 }
 
-const WeekView: React.FC<WeekViewProps> = ({ onTimeClick, onEventClick }) => {
+const WeekView: React.FC<WeekViewProps> = ({ date, onTimeClick, onEventClick }) => {
   const { events, currentDate } = useCalendarStore()
   const { currentHour, currentMinutes, currentPosition } = useTimeline()
   const weekStart = startOfWeek(dayjs(currentDate).toDate(), { weekStartsOn: 0 })
+
+  const handleClick = (hour: number) => {
+    const selectedTime = dayjs(date).hour(hour).minute(0).second(0).toDate()
+    onTimeClick(selectedTime)
+  }
 
   return (
     <DndContext>
@@ -75,12 +81,13 @@ const WeekView: React.FC<WeekViewProps> = ({ onTimeClick, onEventClick }) => {
               <div key={dayIndex} className="border-r relative">
                 <div className="grid grid-rows-24 h-full">
                   {Array.from({ length: 24 }).map((_, hourIndex) => {
-                    const hourTime = dayjs(currentDay).hour(hourIndex).minute(0).second(0).toDate()
                     return (
                       <div
                         key={hourIndex}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                        }}
                         className={`border-t h-20 ${isSameDay(currentDay, new Date()) ? 'bg-blue-50' : ''}`}
-                        onClick={() => onTimeClick(hourTime)}
                       >
                         <div className="flex">
                           {eventPositions
@@ -88,11 +95,14 @@ const WeekView: React.FC<WeekViewProps> = ({ onTimeClick, onEventClick }) => {
                             .map((event: any) => (
                               <div key={event.id}>
                                 <DraggableEvent
+                                  key={event.id}
                                   event={event}
                                   style={{
-                                    width: event.width,
+                                    position: 'absolute',
+                                    top: event.top,
                                     left: event.left,
-                                    fontSize: '0.75rem',
+                                    height: event.height,
+                                    width: event.width,
                                   }}
                                   handleClick={() => onEventClick(event)}
                                 />

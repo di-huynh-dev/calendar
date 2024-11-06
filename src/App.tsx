@@ -64,7 +64,7 @@ const Calendar: React.FC = () => {
         )}
 
         {viewMode === 'day' && <DayView date={currentDate} onTimeClick={handleTimeClick} onEventClick={handleEventClick} />}
-        {viewMode === 'week' && <WeekView onTimeClick={handleTimeClick} onEventClick={handleEventClick} />}
+        {viewMode === 'week' && <WeekView date={currentDate} onTimeClick={handleTimeClick} onEventClick={handleEventClick} />}
 
         {viewMode === 'month' && <MonthView startOfMonth={startOfMonth} onDateSelect={handleDateSelect} onEventClick={handleEventClick} />}
 
