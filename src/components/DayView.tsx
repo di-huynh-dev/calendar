@@ -144,14 +144,14 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick, isMo
     }
 
     const positions = eventGroups.flatMap((group) => {
-      const overlapOffset = 40 // Adjust this value to control the overlap amount
+      const overlapOffset = 40
 
       return group.map((event: any, index: any) => {
         const startMinutes = dayjs(event.start).minute()
         const endMinutes = dayjs(event.end).diff(dayjs(event.start), 'minute')
         const top = (startMinutes / 60) * 100
         const height = (endMinutes / 60) * 100
-        const left = index * overlapOffset
+        const left = 10 + index * overlapOffset
 
         return {
           ...event,

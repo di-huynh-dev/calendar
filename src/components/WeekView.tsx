@@ -90,17 +90,19 @@ const WeekView: React.FC<WeekViewProps> = ({ date, onTimeClick, isModalOpen, onE
   }
 
   const handleMouseUp = () => {
-    if (isDragging) {
+    if (isDragging && selectedBlocks.length > 0) {
       setIsDragging(false)
       setDragStart(null)
 
-      const startTime = dayjs(date)
+      const selectedDay = selectedBlocks[0].day // Retrieve the correct day from the selected blocks
+
+      const startTime = dayjs(selectedDay)
         .hour(selectedBlocks[0].hour)
         .minute(selectedBlocks[0].quarter * 15)
         .second(0)
         .toDate()
 
-      const endTime = dayjs(date)
+      const endTime = dayjs(selectedDay)
         .hour(selectedBlocks[selectedBlocks.length - 1].hour)
         .minute((selectedBlocks[selectedBlocks.length - 1].quarter + 1) * 15)
         .second(0)
@@ -109,6 +111,7 @@ const WeekView: React.FC<WeekViewProps> = ({ date, onTimeClick, isModalOpen, onE
       onTimeClick({ start: startTime, end: endTime })
     }
   }
+
   /* Handle mouse select events end */
 
   /* Handle drag event start */
@@ -147,14 +150,14 @@ const WeekView: React.FC<WeekViewProps> = ({ date, onTimeClick, isModalOpen, onE
     }
 
     const positions = eventGroups.flatMap((group) => {
-      const overlapOffset = 40 // Adjust this value to control the overlap amount
+      const overlapOffset = 20 // Adjust this value to control the overlap amount
 
       return group.map((event: any, index: any) => {
         const startMinutes = dayjs(event.start).minute()
         const endMinutes = dayjs(event.end).diff(dayjs(event.start), 'minute')
         const top = (startMinutes / 60) * 100
         const height = (endMinutes / 60) * 100
-        const left = index * overlapOffset
+        const left = 10 + index * overlapOffset
 
         return {
           ...event,
