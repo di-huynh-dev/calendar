@@ -20,6 +20,7 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick, isMo
   const { currentHour, currentMinutes, currentPosition } = useTimeline()
 
   const [selectedBlocks, setSelectedBlocks] = useState<{ hour: number; quarter: number }[]>([])
+
   const [draggedEvent, setDraggedEvent] = useState<any>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState<{ hour: number; quarter: number } | null>(null)
@@ -143,7 +144,7 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick, isMo
     }
 
     const positions = eventGroups.flatMap((group) => {
-      const overlapOffset = 100 // Adjust this value to control the overlap amount
+      const overlapOffset = 40 // Adjust this value to control the overlap amount
 
       return group.map((event: any, index: any) => {
         const startMinutes = dayjs(event.start).minute()
@@ -158,7 +159,7 @@ const DayView: React.FC<DayViewProps> = ({ date, onTimeClick, onEventClick, isMo
           top: `${top}%`,
           height: `${height}%`,
           zIndex: index,
-          width: `calc(100% - ${index * overlapOffset}px)`,
+          width: `calc(90% - ${index * overlapOffset}px)`,
         }
       })
     })

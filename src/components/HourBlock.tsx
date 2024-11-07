@@ -9,9 +9,11 @@ export const HourBlock: React.FC<HourBlockProps> = ({ onMouseDown, onMouseEnter,
     {Array.from({ length: 4 }, (_, i) => (
       <div
         key={i}
-        className={`flex-1 border-t-[1px] border-dashed ${isHighlighted.includes(i) ? 'bg-blue-100' : ''}`}
+        className={`relative flex-1 hover:bg-blue-100 ${isHighlighted.includes(i) ? 'bg-blue-100' : ''}`}
         onMouseDown={() => onMouseDown(i)}
-        onMouseEnter={() => onMouseEnter(i)}
+        onMouseEnter={() => {
+          onMouseEnter(i)
+        }}
       ></div>
     ))}
   </div>

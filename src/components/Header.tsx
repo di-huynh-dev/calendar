@@ -130,11 +130,10 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
               <div
                 className={`flex justify-around items-center text-sm text-gray-600 border-r-2 ${viewMode === 'day' ? 'col-span-1' : ''}`}
               >
-                <p>GMT+07</p>
                 {/* Timezone */}
                 <Select
                   size="small"
-                  defaultValue={'GMT +07'}
+                  defaultValue={'Asia/Ho_Chi_Minh'}
                   showSearch
                   value={selectedTimeZone}
                   onChange={(value) => handleTimeZoneChange(value)}
@@ -146,6 +145,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                     </Select.Option>
                   ))}
                 </Select>
+                <p>GMT+07</p>
               </div>
               {viewMode === 'day' && (
                 <div className="col-span-1">

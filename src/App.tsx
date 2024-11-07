@@ -17,6 +17,7 @@ type SelectedTime = {
   start: Date
   end: Date
 }
+
 const Calendar: React.FC = () => {
   const { viewMode, currentDate, timeZone } = useCalendarStore()
   const [selectedTime, setSelectedTime] = useState<SelectedTime | null>(null)
@@ -57,7 +58,7 @@ const Calendar: React.FC = () => {
       <HeaderComponent onEventClick={handleEventClick} />
 
       {/* Calendar Grid */}
-      <div className={`${(viewMode === 'day' || viewMode === 'week') && 'grid grid-cols-8 gap-2 relative'}`}>
+      <div className={`${(viewMode === 'day' || viewMode === 'week') && 'grid grid-cols-8 relative'}`}>
         {/* Time Labels Column */}
         {(viewMode === 'day' || viewMode === 'week') && (
           <div className="border-r">
@@ -66,9 +67,9 @@ const Calendar: React.FC = () => {
               const gmt7Formatted = format(gmt7Time, 'HH:00')
               return (
                 <div className="flex items-center justify-around" key={hour}>
-                  <div className="h-20 border-b text-sm text-center text-gray-500">{gmt7Formatted}</div>
                   {/* Converted time based on selected timeZone */}
                   <div className="h-20 border-b text-sm text-center text-gray-500">{moment(gmt7Time).tz(timeZone).format('HH:00')}</div>
+                  <div className="h-20 border-b text-sm text-center text-gray-500">{gmt7Formatted}</div>
                 </div>
               )
             })}
@@ -79,7 +80,9 @@ const Calendar: React.FC = () => {
           <DayView date={currentDate} onTimeClick={handleTimeClick} onEventClick={handleEventClick} isModalOpen={isModalOpen} />
         )}
 
-        {/* {viewMode === 'week' && <WeekView date={currentDate} onTimeClick={handleTimeClick} onEventClick={handleEventClick} />} */}
+        {viewMode === 'week' && (
+          <WeekView date={currentDate} onTimeClick={handleTimeClick} onEventClick={handleEventClick} isModalOpen={isModalOpen} />
+        )}
 
         {viewMode === 'month' && <MonthView startOfMonth={startOfMonth} onDateSelect={handleDateSelect} onEventClick={handleEventClick} />}
 

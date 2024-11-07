@@ -1,7 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 /* width */
 ::-webkit-scrollbar {
   width: 4px;
@@ -46,4 +45,15 @@
 .ql-tooltip.ql-editing {
   margin-top: -30px !important;
   left: 60px !important;
+}
+
+.resize-handle {
+  width: 100%;
+  height: 10px;
+  background-color: #ccc;
+  cursor: s-resize;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
 }
