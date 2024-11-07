@@ -285,7 +285,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ selectedTime, selectedEve
                       })
                     } else {
                       const initialRange = selectedTime
-                        ? [dayjs(selectedTime.start), dayjs(selectedTime.start).add(1, 'hour')]
+                        ? [dayjs(selectedTime.start), dayjs(selectedTime.end)]
                         : [dayjs(), dayjs().add(1, 'hour')]
                       form.setFieldsValue({
                         time: {

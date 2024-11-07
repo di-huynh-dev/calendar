@@ -1,5 +1,4 @@
 import React from 'react'
-import { format, setHours } from 'date-fns'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import HeaderComponent from './components/Header'
@@ -10,7 +9,7 @@ import WeekView from './components/WeekView'
 import MonthView from './components/MonthView'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import YearView from './components/YearView'
-import moment from 'moment-timezone'
+import TimeLabelsColumn from './components/TimeLabelsColumn'
 dayjs.extend(isSameOrAfter)
 
 type SelectedTime = {
@@ -49,7 +48,6 @@ const Calendar: React.FC = () => {
     setIsModalOpen(true)
   }
 
-  const hours = Array.from({ length: 24 }, (_, i) => i)
   const startOfMonth = dayjs(currentDate).startOf('month')
   const year = dayjs(currentDate).year()
 
@@ -60,21 +58,7 @@ const Calendar: React.FC = () => {
       {/* Calendar Grid */}
       <div className={`${(viewMode === 'day' || viewMode === 'week') && 'grid grid-cols-8 relative'}`}>
         {/* Time Labels Column */}
-        {(viewMode === 'day' || viewMode === 'week') && (
-          <div className="border-r">
-            {hours.map((hour) => {
-              const gmt7Time = setHours(new Date(), hour)
-              const gmt7Formatted = format(gmt7Time, 'HH:00')
-              return (
-                <div className="flex items-center justify-around" key={hour}>
-                  {/* Converted time based on selected timeZone */}
-                  <div className="h-20 border-b text-sm text-center text-gray-500">{moment(gmt7Time).tz(timeZone).format('HH:00')}</div>
-                  <div className="h-20 border-b text-sm text-center text-gray-500">{gmt7Formatted}</div>
-                </div>
-              )
-            })}
-          </div>
-        )}
+        {(viewMode === 'day' || viewMode === 'week') && <TimeLabelsColumn timeZone={timeZone} />}
 
         {viewMode === 'day' && (
           <DayView date={currentDate} onTimeClick={handleTimeClick} onEventClick={handleEventClick} isModalOpen={isModalOpen} />

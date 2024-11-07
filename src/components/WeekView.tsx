@@ -15,7 +15,7 @@ interface WeekViewProps {
   isModalOpen: boolean
 }
 
-const WeekView: React.FC<WeekViewProps> = ({ date, onTimeClick, isModalOpen, onEventClick }) => {
+const WeekView: React.FC<WeekViewProps> = ({ onTimeClick, isModalOpen, onEventClick }) => {
   const { currentDate, events } = useCalendarStore()
   const { currentHour, currentMinutes, currentPosition } = useTimeline()
 
