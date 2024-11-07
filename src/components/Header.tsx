@@ -1,4 +1,4 @@
-import { Button, DatePicker, Layout, Select, Tooltip } from 'antd'
+import { Badge, Button, DatePicker, Layout, Select, Tooltip } from 'antd'
 import { useCalendarStore } from '../store/useCalendarStore'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Header } from 'antd/es/layout/layout'
@@ -185,9 +185,11 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                 <div className="mx-10 col-span-6">
                   <div className="grid gap-2 grid-cols-4">
                     {currentHolidays.map((holiday) => (
-                      <button key={holiday.id} className="p-2 border border-dashed rounded-lg bg-green-100 w-full">
-                        <span className="text-green-500">{holiday.name}</span>
-                      </button>
+                      <Badge.Ribbon text="Lễ" color="red" placement="end" className="text-xs">
+                        <button key={holiday.id} className="p-2 border border-dashed rounded-lg bg-red-300 w-full">
+                          <span className="text-white font-bold">{holiday.name}</span>
+                        </button>
+                      </Badge.Ribbon>
                     ))}
                     {longEvents.map((event) => {
                       return (
@@ -203,31 +205,40 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                           color="blue"
                           placement="bottomRight"
                         >
-                          <button
-                            key={event.id}
-                            style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
-                            className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full text-xs"
-                            onClick={() => onEventClick(event)}
+                          <Badge.Ribbon
+                            className="text-xs"
+                            text={
+                              <>
+                                {dayjs(event.start).isSame(currentDate, 'day') && ` (Bắt đầu: ${dayjs(event.start).format('HH:mm')})`}
+                                {dayjs(event.end).isSame(currentDate, 'day') && ` (Kết thúc: ${dayjs(event.end).format('HH:mm')})`}
+                                {dayjs(event.start).isBefore(currentDate, 'day') &&
+                                  dayjs(event.end).isAfter(currentDate, 'day') &&
+                                  ' (Cả ngày)'}
+                              </>
+                            }
                           >
-                            <p className="text-white">
-                              {event.title
-                                ? event.title.length > 35
-                                  ? event.title.slice(0, 35) + '...'
-                                  : event.title
-                                : '(Không có tiêu đề)'}
-                              {dayjs(event.start).isSame(currentDate, 'day') && ` (Bắt đầu: ${dayjs(event.start).format('HH:mm')})`}
-                              {dayjs(event.end).isSame(currentDate, 'day') && ` (Kết thúc: ${dayjs(event.end).format('HH:mm')})`}
-                              {dayjs(event.start).isBefore(currentDate, 'day') &&
-                                dayjs(event.end).isAfter(currentDate, 'day') &&
-                                ' (Cả ngày)'}
-                            </p>
-                          </button>
+                            <button
+                              key={event.id}
+                              style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
+                              className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full text-xs"
+                              onClick={() => onEventClick(event)}
+                            >
+                              <p className="text-white">
+                                {event.title
+                                  ? event.title.length > 35
+                                    ? event.title.slice(0, 35) + '...'
+                                    : event.title
+                                  : '(Không có tiêu đề)'}
+                              </p>
+                            </button>
+                          </Badge.Ribbon>
                         </Tooltip>
                       )
                     })}
                     {currentAllDayEvents.map((event) => {
                       return (
                         <Tooltip
+                          className="text-xs"
                           title={
                             <>
                               <p className="text-white">{event.title ? event.title : '(Không có tiêu đề)'}</p>
@@ -239,20 +250,22 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                           color="blue"
                           placement="bottomRight"
                         >
-                          <button
-                            key={event.id}
-                            style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
-                            className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full text-xs"
-                            onClick={() => onEventClick(event)}
-                          >
-                            <p className="text-white">
-                              {event.title
-                                ? event.title.length > 35
-                                  ? event.title.slice(0, 35) + '...'
-                                  : event.title
-                                : '(Không có tiêu đề)'}
-                            </p>
-                          </button>
+                          <Badge.Ribbon text="Cả ngày">
+                            <button
+                              key={event.id}
+                              style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
+                              className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full text-xs"
+                              onClick={() => onEventClick(event)}
+                            >
+                              <p className="text-white">
+                                {event.title
+                                  ? event.title.length > 35
+                                    ? event.title.slice(0, 35) + '...'
+                                    : event.title
+                                  : '(Không có tiêu đề)'}
+                              </p>
+                            </button>
+                          </Badge.Ribbon>
                         </Tooltip>
                       )
                     })}
@@ -299,7 +312,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                                 </>
                               }
                               color="blue"
-                              placement="bottomRight"
+                              placement="leftTop"
                             >
                               <button
                                 key={event.id}
@@ -330,7 +343,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                                 </>
                               }
                               color="blue"
-                              placement="bottomRight"
+                              placement="leftTop"
                             >
                               <button
                                 key={event.id}

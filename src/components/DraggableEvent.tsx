@@ -113,7 +113,7 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
     </div>
   )
 
-  return viewMode === 'week' || isMoreThan5Hours ? (
+  return (
     <Tooltip
       placement="left"
       color="#3b82f6"
@@ -131,8 +131,6 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
     >
       {eventContent}
     </Tooltip>
-  ) : (
-    eventContent
   )
 }
 

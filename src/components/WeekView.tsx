@@ -157,7 +157,7 @@ const WeekView: React.FC<WeekViewProps> = ({ date, onTimeClick, isModalOpen, onE
         const endMinutes = dayjs(event.end).diff(dayjs(event.start), 'minute')
         const top = (startMinutes / 60) * 100
         const height = (endMinutes / 60) * 100
-        const left = 10 + index * overlapOffset
+        const left = index * overlapOffset
 
         return {
           ...event,
