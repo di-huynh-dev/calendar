@@ -208,7 +208,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ selectedTime, selectedEve
             {({ getFieldValue }) => {
               const selectedParticipants = getFieldValue('participants') || []
               return (
-                <div className="mt-2 grid grid-cols-2">
+                <div className="my-2 grid grid-cols-2">
                   {selectedParticipants.map((id: string) => {
                     const person = persons.find((p) => p.id === Number(id))
                     return (
