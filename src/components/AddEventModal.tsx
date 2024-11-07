@@ -176,7 +176,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ selectedTime, selectedEve
         </Form.Item>
 
         {/* Participants */}
-        <Form.Item label={<Users size={14} />}>
+        <Form.Item label={<Users size={14} />} className="mb-0">
           <Form.Item name="participants">
             <Select
               placeholder="Người tham gia"
