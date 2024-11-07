@@ -2,7 +2,6 @@ import { Quill } from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import ResizeImage from 'quill-resize-image'
 
-// Register the module
 Quill.register('modules/resizeImage', ResizeImage)
 
 const BlockEmbed = Quill.import('blots/block/embed')
@@ -39,8 +38,15 @@ const useReactQuill = () => {
       ],
     },
     resizeImage: {
-      modules: ['Resize', 'DisplaySize', 'Toolbar'],
+      image: {
+        displaySize: true,
+        modules: ['Resize', 'DisplaySize', 'Toolbar'],
+      },
+      video: {
+        resize: false,
+      },
     },
+    resizeVideo: false,
   }
 
   const formats = [
@@ -60,6 +66,7 @@ const useReactQuill = () => {
     'video',
     'customVideo',
   ]
+
   return {
     modules,
     formats,

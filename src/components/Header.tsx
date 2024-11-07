@@ -348,7 +348,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
                               <button
                                 key={event.id}
                                 style={{ backgroundColor: event.colorTag ? event.colorTag : '#79a7f3' }}
-                                className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full text-xs"
+                                className="p-2 border border-dashed rounded-lg flex flex-col items-center justify-center w-full"
                                 onClick={() => onEventClick(event)}
                               >
                                 <p className="text-white">

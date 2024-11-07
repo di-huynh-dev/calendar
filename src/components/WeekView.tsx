@@ -63,9 +63,6 @@ const WeekView: React.FC<WeekViewProps> = ({ onTimeClick, isModalOpen, onEventCl
     const endHour = end.hour
     const endQuarter = end.quarter
 
-    // Add blocks logic similar to your original implementation
-    // Make sure to include `currentDay` for each block
-
     if (startHour === endHour) {
       for (let quarter = startQuarter; quarter <= endQuarter; quarter++) {
         blocks.push({ hour: startHour, quarter, day: currentDay })
