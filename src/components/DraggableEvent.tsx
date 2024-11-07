@@ -24,8 +24,6 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
 
   const { viewMode, updateEventTime } = useCalendarStore()
 
-  const isMoreThan5Hours = dayjs(event.end).diff(dayjs(event.start), 'hour') > 5
-
   const roundToNearestQuarterHour = (date: Date): Date => {
     const minutes = date.getMinutes()
     const roundedMinutes = Math.round(minutes / 15) * 15
@@ -93,7 +91,7 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
         position: 'absolute',
         color: '#fcfdff',
         textAlign: 'left',
-        borderRadius: '0.75rem',
+        borderRadius: '0.5rem',
         padding: '0.5rem',
         border: '1px solid #ffffff',
         zIndex: isDragging ? 8 : 1,
