@@ -107,7 +107,10 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
         backgroundColor: isDragging ? 'rgba(121, 167, 243, 0.5)' : event.colorTag || '#79a7f3',
         boxShadow: isDragging ? '0px 4px 12px rgba(19, 19, 19, 0.15)' : 'none',
       }}
-      onMouseEnter={() => setShowSlider(true)}
+      onMouseEnter={(e) => {
+        e.stopPropagation()
+        setShowSlider(true)
+      }}
       onMouseLeave={() => setShowSlider(false)}
     >
       <div className={`text-md ${viewMode !== 'week' ? '' : 'flex items-center gap-2 text-xs'}`}>
@@ -125,7 +128,7 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
           <Slider
             min={15}
             max={23 * 60 + 45 - (new Date(event.start).getHours() * 60 + new Date(event.start).getMinutes())}
-            step={15} // 15-minute intervals
+            step={15}
             value={(newEndTime.getTime() - new Date(event.start).getTime()) / (60 * 1000)}
             onChange={handleSliderChange}
             onAfterChange={handleSliderAfterChange}

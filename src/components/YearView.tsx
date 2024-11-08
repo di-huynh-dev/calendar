@@ -79,11 +79,11 @@ const YearView: React.FC<YearViewProps> = React.memo(({ year, onDateSelect, onEv
               >
                 <div
                   className={`text-center text-sm p-1 cursor-pointer hover:bg-blue-100 rounded ${
-                    currentDate.isSame(dayjs(), 'day') ? 'bg-blue-300' : ''
+                    currentDate.isSame(dayjs(), 'day') ? 'bg-blue-500 hover:bg-blue-500' : ''
                   }`}
                   onClick={() => onDateSelect(currentDate.toDate())}
                 >
-                  <div className={`inline-block ${currentDate.isSame(dayjs(), 'day') ? 'text-blue-500 border-1 font-bold ' : ''}`}>
+                  <div className={`inline-block ${currentDate.isSame(dayjs(), 'day') ? 'text-white  border-1 font-bold ' : ''}`}>
                     {currentDate.date()}
                   </div>
 

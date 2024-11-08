@@ -183,7 +183,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
 
               {viewMode === 'day' && (
                 <div className="mx-10 col-span-6">
-                  <div className="grid gap-2 grid-cols-4">
+                  <div className="grid gap-3 grid-cols-4">
                     {currentHolidays.map((holiday) => (
                       <Badge.Ribbon text="Lễ" color="red" placement="end" className="text-xs">
                         <button key={holiday.id} className="p-2 border border-dashed rounded-lg bg-red-300 w-full">
