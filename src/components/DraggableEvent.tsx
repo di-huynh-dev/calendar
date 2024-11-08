@@ -64,6 +64,7 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
     const duration = new Date(event.end).getTime() - new Date(event.start).getTime()
     const newEndTime = new Date(roundedNewStartTime.getTime() + duration)
     updateEventTime(event.id, roundedNewStartTime, newEndTime)
+    setNewEndTime(newEndTime)
   }
 
   const handleClickEvent = () => {
@@ -131,7 +132,7 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
         <div style={{ position: 'absolute', bottom: -20, left: 0, width: '100%' }}>
           <Slider
             min={15}
-            max={23 * 60 + 45 - (new Date(event.start).getHours() * 60 + new Date(event.start).getMinutes())}
+            max={24 * 60 - (new Date(event.start).getHours() * 60 + new Date(event.start).getMinutes())}
             step={15}
             value={(newEndTime.getTime() - new Date(event.start).getTime()) / (60 * 1000)}
             onChange={handleSliderChange}

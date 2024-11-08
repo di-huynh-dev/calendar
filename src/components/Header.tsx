@@ -13,8 +13,7 @@ interface HeaderComponentProps {
 }
 
 const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
-  const { viewMode, currentDate, setCurrentDate, setViewMode, goForward, goBackward, holidays, events, timeZone, setTimeZone } =
-    useCalendarStore()
+  const { viewMode, currentDate, setCurrentDate, setViewMode, goForward, goBackward, holidays, events, setTimeZone } = useCalendarStore()
   const [searchResults, setSearchResults] = useState<any[]>([])
 
   const today = new Date()
