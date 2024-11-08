@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from 'react'
 import { useDraggable } from '@dnd-kit/core'
 import dayjs from 'dayjs'
-import { Video } from 'lucide-react'
+import { Tooltip, Slider } from 'antd'
 import { useCalendarStore } from '../store/useCalendarStore'
-import { Tooltip } from 'antd'
-import { Event } from '../types/event.type'
+import { Video } from 'lucide-react'
 
 interface DraggableEventProps {
-  event: Event
+  event: any
   style?: React.CSSProperties
-  handleClick: (event: Event) => void
+  handleClick: (event: any) => void
 }
 
 const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleClick }) => {
-  const [isResizing, setIsResizing] = useState(false)
   const [newStartTime, setNewStartTime] = useState<Date>(event.start)
   const [isDragging, setIsDragging] = useState(false)
+  const [newEndTime, setNewEndTime] = useState<Date>(new Date(event.end))
+  const [showSlider, setShowSlider] = useState(false)
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: event.id,
-    disabled: isResizing,
   })
 
   const { viewMode, updateEventTime } = useCalendarStore()
@@ -34,7 +33,7 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
   }
 
   useEffect(() => {
-    if (transform && !isResizing) {
+    if (transform) {
       setIsDragging(true)
 
       const offsetY = transform.y
@@ -66,9 +65,19 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
   }
 
   const handleClickEvent = () => {
-    if (!isDragging && !isResizing) {
+    if (!isDragging) {
       handleClick(event)
     }
+  }
+
+  const handleSliderChange = (value: number) => {
+    const newEnd = new Date(event.start.getTime() + value * 60 * 1000)
+    setNewEndTime(newEnd)
+  }
+
+  const handleSliderAfterChange = (value: number) => {
+    const newEnd = new Date(event.start.getTime() + value * 60 * 1000)
+    updateEventTime(event.id, event.start, newEnd)
   }
 
   const eventContent = (
@@ -98,6 +107,8 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
         backgroundColor: isDragging ? 'rgba(121, 167, 243, 0.5)' : event.colorTag || '#79a7f3',
         boxShadow: isDragging ? '0px 4px 12px rgba(19, 19, 19, 0.15)' : 'none',
       }}
+      onMouseEnter={() => setShowSlider(true)}
+      onMouseLeave={() => setShowSlider(false)}
     >
       <div className={`text-md ${viewMode !== 'week' ? '' : 'flex items-center gap-2 text-xs'}`}>
         <div className="flex gap-2 items-center">
@@ -108,6 +119,24 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
         </div>
         <p>{event.title || '(Không có tiêu đề)'}</p>
       </div>
+
+      {showSlider && (
+        <div style={{ position: 'absolute', bottom: -20, left: 0, width: '100%' }}>
+          <Slider
+            min={15}
+            max={23 * 60 + 45 - (new Date(event.start).getHours() * 60 + new Date(event.start).getMinutes())}
+            step={15} // 15-minute intervals
+            value={(newEndTime.getTime() - new Date(event.start).getTime()) / (60 * 1000)}
+            onChange={handleSliderChange}
+            onAfterChange={handleSliderAfterChange}
+            tipFormatter={(value) => {
+              const hours = Math.floor((value ?? 0) / 60)
+              const minutes = (value ?? 0) % 60
+              return `Thời lượng: ${hours} giờ ${minutes} phút`
+            }}
+          />
+        </div>
+      )}
     </div>
   )
 
@@ -116,15 +145,16 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
       placement="left"
       color="#3b82f6"
       title={
-        <>
-          <div className="flex gap-2 items-center">
-            <p>
-              {dayjs(event.start).format('HH:mm')} - {dayjs(event.end).format('HH:mm')}
-            </p>
-            <p>{event.googleMeetLink && <Video size={16} />}</p>
-          </div>
-          <p>{event.title || '(Không có tiêu đề)'}</p>
-        </>
+        !isDragging && (
+          <>
+            <div className="flex gap-2 items-center">
+              <p>
+                {dayjs(event.start).format('HH:mm')} - {dayjs(newEndTime).format('HH:mm')}
+              </p>
+              <p>{event.title || '(Không có tiêu đề)'}</p>
+            </div>
+          </>
+        )
       }
     >
       {eventContent}
