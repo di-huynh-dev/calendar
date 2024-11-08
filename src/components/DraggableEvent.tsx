@@ -74,14 +74,8 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
   }
 
   const handleSliderChange = (value: number) => {
-    setIsAdjusting(true)
     const newEnd = new Date(event.start.getTime() + value * 60 * 1000)
     setNewEndTime(newEnd)
-  }
-
-  const handleSliderAfterChange = (value: number) => {
-    setIsAdjusting(false)
-    const newEnd = new Date(event.start.getTime() + value * 60 * 1000)
     updateEventTime(event.id, event.start, newEnd)
   }
 
@@ -136,11 +130,12 @@ const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleCli
             step={15}
             value={(newEndTime.getTime() - new Date(event.start).getTime()) / (60 * 1000)}
             onChange={handleSliderChange}
-            onAfterChange={handleSliderAfterChange}
-            tipFormatter={(value) => {
-              const hours = Math.floor((value ?? 0) / 60)
-              const minutes = (value ?? 0) % 60
-              return `Thời lượng: ${hours} giờ ${minutes} phút`
+            tooltip={{
+              formatter: (value) => {
+                const hours = Math.floor((value ?? 0) / 60)
+                const minutes = (value ?? 0) % 60
+                return `Thời lượng: ${hours} giờ ${minutes} phút`
+              },
             }}
           />
         </div>
