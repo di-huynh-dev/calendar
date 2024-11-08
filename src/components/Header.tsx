@@ -109,13 +109,15 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({ onEventClick }) => {
               showSearch
               placeholder="Tìm kiếm sự kiện"
               onSearch={debouncedSearch}
-              style={{ width: 200 }}
+              style={{ width: 300 }}
               filterOption={false}
               allowClear
             >
               {searchResults.map((event) => (
                 <Select.Option key={event.id} value={event.title}>
-                  <p onClick={() => onEventClick(event)}>{event.title}</p>
+                  <p onClick={() => onEventClick(event)}>
+                    {event.title} - {dayjs(event.start).format('DD/MM/YYYY HH:mm')} - {dayjs(event.end).format('DD/MM/YYYY HH:mm')}
+                  </p>
                 </Select.Option>
               ))}
             </Select>
