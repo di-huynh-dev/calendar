@@ -1,17 +1,17 @@
-import { Button, Checkbox, Col, ColorPicker, DatePicker, Form, Input, Modal, Popconfirm, Row, Select, TimePicker, Tooltip } from 'antd'
-import { ListOrdered, MapPin, Palette, Timer, Trash, Undo2, Users, X } from 'lucide-react'
-import GoogleMeetIcon from '../assets/meet.png'
+import { Button, Checkbox, Col, ColorPicker, DatePicker, Form, Input, Modal, Popconfirm, Row, Select, Tooltip } from 'antd'
 import dayjs from 'dayjs'
-import cities from '../data/city.json'
-import wards from '../data/ward.json'
-import districts from '../data/district.json'
-import persons from '../data/person.json'
+import { ListOrdered, MapPin, Palette, Timer, Trash, Undo2, Users, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import toast from 'react-hot-toast'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
-import { useCalendarStore } from '../store/useCalendarStore'
-import toast from 'react-hot-toast'
-import { useEffect, useRef, useState } from 'react'
+import GoogleMeetIcon from '../assets/meet.png'
+import cities from '../data/city.json'
+import districts from '../data/district.json'
+import persons from '../data/person.json'
+import wards from '../data/ward.json'
 import useReactQuill from '../hooks/useReactQuill'
+import { useCalendarStore } from '../store/useCalendarStore'
 
 type SelectedTime = {
   start: Date
@@ -164,7 +164,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ selectedTime, selectedEve
         requiredMark={false}
         autoComplete="off"
         layout="horizontal"
-        className="max-h-[calc(100vh-200px)] overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 scrollbar-w-1]"
+        className="px-4 max-h-[calc(100vh-200px)] overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 scrollbar-w-1]"
       >
         {/* Title */}
         <Form.Item

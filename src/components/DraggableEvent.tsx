@@ -14,13 +14,12 @@ interface DraggableEventProps {
 const DraggableEvent: React.FC<DraggableEventProps> = ({ event, style, handleClick }) => {
   const [newStartTime, setNewStartTime] = useState<Date>(event.start)
   const [isDragging, setIsDragging] = useState(false)
-  const [isAdjusting, setIsAdjusting] = useState(false)
   const [newEndTime, setNewEndTime] = useState<Date>(new Date(event.end))
   const [showSlider, setShowSlider] = useState(false)
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: event.id,
-    disabled: isAdjusting,
+    disabled: false,
   })
 
   const { viewMode, updateEventTime } = useCalendarStore()
